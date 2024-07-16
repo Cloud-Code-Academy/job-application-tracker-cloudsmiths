@@ -2,6 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Company__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <description>Lookup to Account record storing information about the company.</description>
+    <inlineHelpText>Select the Company associated with the application.</inlineHelpText>
     <label>Company</label>
     <referenceTo>Account</referenceTo>
     <relationshipLabel>Job Applications</relationshipLabel>

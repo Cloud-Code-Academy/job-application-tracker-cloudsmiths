@@ -2,6 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Primary_Contact__c</fullName>
     <defaultValue>false</defaultValue>
+    <description>Designates the Contact as the Primary Contact for the Job Application. Used to auto-populate the Primary Contact lookup on the Job Application record.</description>
+    <inlineHelpText>Check this box if the Contact selected is the Primary Contact for this Job Application.</inlineHelpText>
     <label>Primary Contact</label>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>

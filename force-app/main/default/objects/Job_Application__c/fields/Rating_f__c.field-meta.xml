@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Rating_f__c</fullName>
+    <description>Formula field used to visualize rating chosen in the Rating Scale field.</description>
     <externalId>false</externalId>
     <formula>IMAGE( 
 CASE( Rating_Scale__c , 
@@ -12,6 +13,7 @@ CASE( Rating_Scale__c ,
 &quot;/img/samples/stars_000.gif&quot;), 
 &quot;rating&quot;)</formula>
     <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <inlineHelpText>Formula field used to visualize rating chosen in the Rating Scale field.</inlineHelpText>
     <label>Rating (f)</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
