@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Interview_Format__c</fullName>
+    <description>Field to track format of interviews.</description>
+    <inlineHelpText>Select format for interview.</inlineHelpText>
     <label>Interview Format</label>
     <required>false</required>
     <type>Picklist</type>
