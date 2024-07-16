@@ -2,6 +2,8 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Primary_Contact__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
+    <description>Field used to store primary contact for the job application. Auto-populated by adding Primary Contact on Hiring Team or by using the first Contact on the associated Account.</description>
+    <inlineHelpText>Primary Contact for application. Auto-populated by adding Primary Contact on Hiring Team or by using the first Contact on the associated Account.</inlineHelpText>
     <label>Primary Contact</label>
     <referenceTo>Contact</referenceTo>
     <relationshipLabel>Job Applications</relationshipLabel>
