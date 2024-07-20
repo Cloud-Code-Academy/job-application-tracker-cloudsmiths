@@ -14,14 +14,14 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
     }
 
     public override void beforeInsert(){
-         setPrimaryContact(newJobApplications);
+        setPrimaryContact(newJobApplications);
 
     }
 
     public override void afterInsert(){
         List<Hiring_Team__c> hiringTeamList = createMissingHiringTeam(newJobApplications);
         TriggerHandler.bypass('HiringTeamHandler');
-        insert hiringTeamList;
+        Database.insert (hiringTeamList, AccessLevel.USER_MODE);
         TriggerHandler.clearAllBypasses();
     }
 

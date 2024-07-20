@@ -1,5 +1,6 @@
-trigger JobApplicationTrigger on Job_Application__c (before insert, after insert, before update, after update, before delete, after delete, after undelete) {
+trigger JobApplicationTrigger on Job_Application__c (before insert, after insert) {
+    
     JobApplicationHandler handler = new JobApplicationHandler();
-
     handler.run();
+    
 }

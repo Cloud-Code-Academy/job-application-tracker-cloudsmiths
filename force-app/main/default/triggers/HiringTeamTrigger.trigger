@@ -1,5 +1,6 @@
-trigger HiringTeamTrigger on Hiring_Team__c (before insert, after insert, before update, after update, before delete, after delete, after undelete) {
+trigger HiringTeamTrigger on Hiring_Team__c (after insert, after update) {
+    
     HiringTeamHandler handler = new HiringTeamHandler();
-
     handler.run();
+    
 }

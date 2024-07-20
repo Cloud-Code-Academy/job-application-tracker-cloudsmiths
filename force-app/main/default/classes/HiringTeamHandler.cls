@@ -18,9 +18,9 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         List<Hiring_Team__c> hiringTeamsToUpdate = updatePreviousPrimaryContact(newHiringTeam);
         
         TriggerHandler.bypass('JobApplicationHandler');
-        update jobAppsToUpdate;
+        Database.update(jobAppsToUpdate, AccessLevel.USER_MODE);
         TriggerHandler.bypass('HiringTeamHandler');
-        update hiringTeamsToUpdate;
+        Database.update (hiringTeamsToUpdate,AccessLevel.USER_MODE);
         TriggerHandler.clearAllBypasses();
     }
 
@@ -32,10 +32,10 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         jobAppsToUpdate.addAll(removeAppPrimaryContact);
         List<Hiring_Team__c> hiringTeamsToUpdate = updatePreviousPrimaryContact(newHiringTeam);
 
-       TriggerHandler.bypass('JobApplicationHandler');
-        update jobAppsToUpdate;
+        TriggerHandler.bypass('JobApplicationHandler');
+        Database.update (jobAppsToUpdate, AccessLevel.USER_MODE);
         TriggerHandler.bypass('HiringTeamHandler');
-        update hiringTeamsToUpdate;
+        Database.update (hiringTeamsToUpdate,AccessLevel.USER_MODE);
         TriggerHandler.clearAllBypasses();
     }
 
@@ -44,7 +44,7 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         Map<Id,Id> jobAppIdToPrimaryContactIdMap = new Map<Id,Id>();
         //Create List of Job App Ids to be used in SOQL Query
         List<Id> jobAppIds = new List<Id>();
-       
+    
         //Identify Hiring Team records set as Primary Contacts and add to map
         for(Hiring_Team__c teamMember :newHiringTeam){
             if(teamMember.Primary_Contact__c == true){
