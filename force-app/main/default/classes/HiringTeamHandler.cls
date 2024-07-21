@@ -1,10 +1,12 @@
 public with sharing class HiringTeamHandler extends TriggerHandler{
 
+    //Initialize variables    
     private List<Hiring_Team__c> newHiringTeam;
     private List<Hiring_Team__c> oldHiringTeam;
     private Map<Id, Hiring_Team__c> newHiringTeamMap;
     private Map<Id, Hiring_Team__c> oldHiringTeamMap;
     
+    //Setting variables with values from trigger
     public HiringTeamHandler() {
 
         this.newHiringTeam = (List<Hiring_Team__c>) Trigger.new;
@@ -13,14 +15,16 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         this.oldHiringTeamMap = (Map<Id, Hiring_Team__c>) Trigger.oldMap;
     }
 
+    
     public override void afterInsert(){
         List<Job_Application__c> jobAppsToUpdate = setApplicationPrimaryContact(newHiringTeam);
         List<Hiring_Team__c> hiringTeamsToUpdate = updatePreviousPrimaryContact(newHiringTeam);
         
+        //Bypasses JobApplicationHandler and HiringTeamHandler to prevent recursion
         TriggerHandler.bypass('JobApplicationHandler');
-        Database.update(jobAppsToUpdate, AccessLevel.USER_MODE);
+        Database.update(jobAppsToUpdate, AccessLevel.SYSTEM_MODE);
         TriggerHandler.bypass('HiringTeamHandler');
-        Database.update (hiringTeamsToUpdate,AccessLevel.USER_MODE);
+        Database.update (hiringTeamsToUpdate,AccessLevel.SYSTEM_MODE);
         TriggerHandler.clearAllBypasses();
     }
 
@@ -31,18 +35,17 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         jobAppsToUpdate.addAll(setAppPrimaryContact);
         jobAppsToUpdate.addAll(removeAppPrimaryContact);
         List<Hiring_Team__c> hiringTeamsToUpdate = updatePreviousPrimaryContact(newHiringTeam);
-
+        //Bypasses JobApplicationHandler and HiringTeamHandler to prevent recursion
         TriggerHandler.bypass('JobApplicationHandler');
-        Database.update (jobAppsToUpdate, AccessLevel.USER_MODE);
+        Database.update (jobAppsToUpdate, AccessLevel.SYSTEM_MODE);
         TriggerHandler.bypass('HiringTeamHandler');
-        Database.update (hiringTeamsToUpdate,AccessLevel.USER_MODE);
+        Database.update (hiringTeamsToUpdate,AccessLevel.SYSTEM_MODE);
         TriggerHandler.clearAllBypasses();
     }
 
     public static List<Job_Application__c> setApplicationPrimaryContact(List<Hiring_Team__c> newHiringTeam){
-        //Create map of Job Application Ids and Primary Contact Ids
+        //Initialize map of Job Application Ids and Primary Contact Ids
         Map<Id,Id> jobAppIdToPrimaryContactIdMap = new Map<Id,Id>();
-        //Create List of Job App Ids to be used in SOQL Query
         List<Id> jobAppIds = new List<Id>();
     
         //Identify Hiring Team records set as Primary Contacts and add to map
@@ -59,16 +62,19 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
             jobApp.Primary_Contact__c = jobAppIdToPrimaryContactIdMap.get(jobApp.Id);
         }
         
+        //Return list
         return jobAppsToUpdate;
     }
 
     public static List<Job_Application__c> removePrimaryContact(Map<Id, Hiring_Team__c> newHiringTeamMap, Map<Id, Hiring_Team__c> oldHiringTeamMap){
+        //Initialize list of Job Application Ids and populate list from Hiring Team records if Primay Contact was changed from true to false
         List<Id> jobAppIds = new List<Id>();
         for(Hiring_Team__c teamMember :newHiringTeamMap.values()){
             if(oldHiringTeamMap.get(teamMember.Id).Primary_Contact__c == true && teamMember.Primary_Contact__c == false){
                 jobAppIds.add(teamMember.Job_Application__c);
             }
         }
+        //Use jobAppIds list to query Job Application records and update Primary Contact to null
         List<Job_Application__c> jobAppUpdates = [SELECT Id, Primary_Contact__c FROM Job_Application__c WHERE Id IN :jobAppIds];
         for(Job_Application__c jobApp :jobAppUpdates){
             jobApp.Primary_Contact__c = null;
@@ -77,17 +83,20 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
     }
 
     public static List<Hiring_Team__c> updatePreviousPrimaryContact(List<Hiring_Team__c> newHiringTeam){
+        //Initialize list of Job Application and Hiring Team Ids and populate the lists
         List<Id> jobAppIds = new List<Id>();
         List<Id> newHiringTeamIds = new List<Id>();
         for(Hiring_Team__c teamMember :newHiringTeam){
             jobAppIds.add(teamMember.Job_Application__c);
             newHiringTeamIds.add(teamMember.Id);
         }
+        //Query for Hiring Team records that where Job Application Id is in the list but Hiring Team Id is not
         List<Hiring_Team__c> existingHiringTeamList = [SELECT Id, Contact__c, Primary_Contact__c FROM Hiring_Team__c WHERE Job_Application__c IN :jobAppIds AND Id NOT IN :newHiringTeamIds AND Primary_Contact__c = true];
-        System.debug(existingHiringTeamList);
+        //Set Primary Contact to null
         for(Hiring_Team__c teamMember :existingHiringTeamList){
             teamMember.Primary_Contact__c = false;
         }
+        //Return list
         return existingHiringTeamList;
     
     }
