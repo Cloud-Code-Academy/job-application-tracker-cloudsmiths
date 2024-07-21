@@ -4,6 +4,10 @@
         <application>Job_Applications</application>
         <visible>true</visible>
     </applicationVisibilities>
+    <externalCredentialPrincipalAccesses>
+        <enabled>true</enabled>
+        <externalCredentialPrincipal>JoobleAPI-Job Application App</externalCredentialPrincipal>
+    </externalCredentialPrincipalAccesses>
     <fieldPermissions>
         <editable>true</editable>
         <field>Account.AccountNumber</field>
@@ -346,6 +350,26 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
+        <field>Job_Application__c.Job_Type__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Job_Application__c.Jooble_Id__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Job_Application__c.Jooble_Last_Updated__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Job_Application__c.Jooble_Source__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
         <field>Job_Application__c.Location_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -382,6 +406,11 @@
     <fieldPermissions>
         <editable>true</editable>
         <field>Job_Application__c.Required_Experience__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Job_Application__c.Salary_Type__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
