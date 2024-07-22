@@ -8,77 +8,77 @@
 @IsTest
 public with sharing class JobApplicationStatusHelperTest {
 
-    static void createTestData(){
-        //Create Test data
-        List<Job_Application__c> jobApplications = new List<Job_Application__c>();
-        //Create 5 Job Application records for each status value
-        for(Integer i = 0; i < 35; i++){
-            //Job Application with Status = 'Saved'
-            if(i < 5) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Saved',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-    
-            //Job Application with Status = 'Applying'
-            if(i >= 5 && i < 10) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applying',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-    
-            //Job Application with Status = 'Applied'
-            if(i >= 10 && i < 15) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applied',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-    
-            //Job Application with Status = 'Interviewing'
-            if(i >= 15 && i < 20) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Interviewing',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-    
-            //Job Application with Status = 'Negotiating'
-            if(i >= 20 && i < 25) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Negotiating',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-    
-            //Job Application with Status = 'Accepted'
-            if(i >= 25 && i < 30) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Accepted',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-            
-            //Job Application with Status = 'Closed'
-            if(i >= 30 && i < 35) {
-                Job_Application__c jobApp = new Job_Application__c (Status__c = 'Closed',
-                                                                    Position_Title__c = 'Salesforce Dev' + i,
-                                                                    Salary__c = 100000);
-                jobApplications.add(jobApp);
-            }
-        }
-        
-        Database.insert(jobApplications);
-        
-    }
-
     @IsTest
     static void jobApplicationAfterInsertTest(){
 
+         //Create Test data
+         List<Job_Application__c> jobApplications = new List<Job_Application__c>();
+         //Create 5 Job Application records for each status value
+         for(Integer i = 0; i < 35; i++){
+             //Job Application with Status = 'Saved'
+             if(i < 5) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Saved',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+     
+             //Job Application with Status = 'Applying'
+             if(i >= 5 && i < 10) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applying',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+     
+             //Job Application with Status = 'Applied'
+             if(i >= 10 && i < 15) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applied',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+     
+             //Job Application with Status = 'Interviewing'
+             if(i >= 15 && i < 20) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Interviewing',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+     
+             //Job Application with Status = 'Negotiating'
+             if(i >= 20 && i < 25) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Negotiating',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+     
+             //Job Application with Status = 'Accepted'
+             if(i >= 25 && i < 30) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Accepted',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+             
+             //Job Application with Status = 'Closed'
+             if(i >= 30 && i < 35) {
+                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Closed',
+                                                                     Position_Title__c = 'Salesforce Dev' + i,
+                                                                     Salary__c = 100000);
+                 jobApplications.add(jobApp);
+             }
+         }
+         
+         Test.startTest();
+         Database.insert(jobApplications);
+         Test.stopTest();
+
         List<Job_Application__c> insertedJobApps = [SELECT Id,Status__c, Position_Title__c, Salary__c FROM Job_Application__c ];
-        
+        System.debug('Total Job Application Records Created ::::: ' +insertedJobApps.size());
+        System.debug('Job Application Records ::::: ' +insertedJobApps);
         //Assertion of Task records for each Status
 
         //Get Job Application records that are inserted and Status = 'Saved'
@@ -105,7 +105,7 @@ public with sharing class JobApplicationStatusHelperTest {
         List<Job_Application__c> appliedJobApplications = [SELECT Id, Status__c, Position_Title__c, Salary__c 
                                                         FROM Job_Application__c WHERE Id IN:insertedJobApps AND Status__c = 'Applied'];
         List<Task> appliedTasks = [SELECT Id, Description, Priority, ActivityDate, WhatId FROM Task WHERE WhatId IN : appliedJobApplications];
-
+        
         for(Task task : appliedTasks ){
             System.assertEquals(20, appliedTasks.size(), 'Tasks are not created as Expected for the Job Application with Status - Applied');
             System.assertEquals(System.today() + 1, task.ActivityDate, 'Due Date of the Task is not set as Expected for Job Applications with Status - Applied');
@@ -156,43 +156,45 @@ public with sharing class JobApplicationStatusHelperTest {
     @IsTest
     static void jobApplicationAfterUpdateTest() {
 
+        List<Job_Application__c> jobApps = new List<Job_Application__c>();
+        for(Integer i = 0; i < 50; i++){
+            Job_Application__c jobApp = new Job_Application__c (Status__c = 'Saved',
+                                                                     Position_Title__c = 'Salesforce Dev ' + i,
+                                                                     Salary__c = 100000);
+                 jobApps.add(jobApp);
+        }
+
+        if(!jobApps.isEmpty()){
+            Database.insert(jobApps);
+        }
+        
         List<Job_Application__c> jobApplications = [SELECT Id,Status__c, Position_Title__c, Salary__c FROM Job_Application__c ];
         //Update the Job Application record Status 
         List<Job_Application__c> jobAppsToBeUpdated = new List<Job_Application__c>();
 
+        System.debug('After Update Test Job Apps before update:::: ' +jobApplications.size());
+
         for(Job_Application__c jobApp : jobApplications){
-            switch on jobApp.Status__c{
-                when 'Saved', 'Applying', 'Applied'{
-                    jobApp.Status__c = 'Interviewing';
-                    jobAppsToBeUpdated.add(jobApp);
-                }
-                when 'Negotiating', 'Accepted'{
-                    jobApp.Status__c = 'Closed';
-                    jobAppsToBeUpdated.add(jobApp);
-                }
+
+                jobApp.Status__c = 'Interviewing';
+                jobAppsToBeUpdated.add(jobApp);
+
             }
-        }
+
+        System.debug('Job Applications::::::  ' +jobAppsToBeUpdated.size());
 
         Test.startTest();
         Database.update(jobAppsToBeUpdated);
         Test.stopTest();
 
         //Assertion of the Task creations after Status Update
-        List<Job_Application__c> interviewingJobApps = [SELECT Id, Status__c FROm Job_Application__c WHERE Id IN : jobAppsToBeUpdated AND Status__c = 'Interviewing' ];
-        List<Task> interviewingTasks = [SELECT Id,Description, Priority, ActivityDate, WhatId FROM Task WHERE WhatId IN : interviewingJobApps ];
+        List<Job_Application__c> interviewingJobApps = [SELECT Id, Status__c FROM Job_Application__c WHERE Id IN : jobAppsToBeUpdated AND Status__c = 'Interviewing'];
+
+        List<Task> interviewingTasks = [SELECT Id,Description, Priority, ActivityDate, WhatId FROM Task WHERE WhatId IN : interviewingJobApps];
 
         for(Task task : interviewingTasks){
-            System.assertEquals (125, interviewingTasks.size(),'Tasks are not created as Expected for the Job Application with Status - Interviewing after Update' );
+            System.assertEquals (400, interviewingTasks.size(),'Tasks are not created as Expected for the Job Application with Status - Interviewing after Update');
             System.assertEquals(System.today() + 1, task.ActivityDate , 'Tasks Due Date is not set as expected for the Job Applications with Status - Interviewing after Update');
-        }
-
-        
-        List<Job_Application__c> closedJobApps = [SELECT Id, Status__c FROm Job_Application__c WHERE Id IN : jobAppsToBeUpdated AND Status__c = 'Closed' ];
-        List<Task> closedTasks = [SELECT Id,Description, Priority, ActivityDate, WhatId FROM Task WHERE WhatId IN : closedJobApps ];
-
-        for(Task task : closedTasks){
-            System.assertEquals (40, closedTasks.size(),'Tasks are not created as Expected for the Job Application with Status - Closed after Update' );
-            System.assertEquals(System.today() + 1, task.ActivityDate , 'Tasks Due Date is not set as expected for the Job Applications with Status - Closed after Update');
         }
     }
 

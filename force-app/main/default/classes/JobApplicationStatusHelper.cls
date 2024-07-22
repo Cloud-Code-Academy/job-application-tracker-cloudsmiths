@@ -7,10 +7,11 @@
 **/
 public with sharing class JobApplicationStatusHelper {
 
-    public static List<Task> tasksToBeCreated = new List<Task>();
 
     public static void tasksBasedOnStatus(List<Job_Application__c> newJobApplications, Map<Id, Job_Application__c> oldJobApplicationsMap){
 
+         // Clearing the static list to avoid retaining tasks from previous transactions
+         tasksToBeCreated.clear();
         //Looping over all the Job Application records that are passed through After Update Trigger Context
         for(Job_Application__c jobApp : newJobApplications){
             //Check if this is an update operation and there is a change in the Status of the Job Application
@@ -23,6 +24,7 @@ public with sharing class JobApplicationStatusHelper {
             }
     }
 
+    System.debug('Size of the Tasks getting created:::: ' +tasksToBeCreated.size());
     if(!tasksToBeCreated.isEmpty()){
         Database.insert(tasksToBeCreated, AccessLevel.SYSTEM_MODE);
     }
@@ -86,7 +88,7 @@ private static void handleStatusChange(String status, Job_Application__c jobApp)
     }
 }
     //Method to create Tasks
-    public static void createTask(String description, String priority, Job_Application__c application){
+    private static void createTask(String description, String priority, Job_Application__c application){
 
         Task task = new Task();
         task.Description = description;
@@ -100,4 +102,5 @@ private static void handleStatusChange(String status, Job_Application__c jobApp)
         tasksToBeCreated.add(task);
     }
 
+    private static List<Task> tasksToBeCreated = new List<Task>();
 }
