@@ -19,19 +19,21 @@ public with sharing class EventHandler extends TriggerHandler{
 
 
     public static void eventValidation(List<Event> newEvent){
-        
+        /**Initializing constant for calculations, list of Owner Ids, and maps to store 
+        * a lists of the Unix Epoch time for start times and end times
+        **/
         final Integer MSTOSECCONVERSION = 1000;
         List<Id> ownerIdList = new List<Id>();
-        List<Id> newEventIdList = new List<Id>();
         Map<Id,Long> newEventStartDateEpochByEventId = new Map<Id,Long>();
         Map<Id,Long> newEventEndDateEpochByEventId = new Map<Id,Long>();
+        //Iterate over each new event and populating the maps and lists
             for(Event eachEvent :newEvent){
                 Long startEpochTime = eachEvent.StartDateTime.getTime()/MSTOSECCONVERSION;
                 Long endEpochTime = eachEvent.EndDateTime.getTime()/MSTOSECCONVERSION;
                 newEventStartDateEpochByEventId.put(eachEvent.Id,startEpochTime);
                 newEventEndDateEpochByEventId.put(eachEvent.Id,endEpochTime);
                 ownerIdList.add(eachEvent.OwnerId);
-                newEventIdList.add(eachEvent.Id);
+                //Setting variables to hold start and end day of the week and returning error if the day is a weekend
                 String eventStartDay = eachEvent.StartDateTime.format('EEEE');
                 String eventEndDay = eachEvent.EndDateTime.format('EEEE');
                     if(eventStartDay == 'Saturday' || eventStartDay == 'Sunday' || eventEndDay == 'Saturday' || eventEndDay == 'Sunday'){
@@ -39,10 +41,17 @@ public with sharing class EventHandler extends TriggerHandler{
                     }
             }
 
-        List<Event> allEvents = [SELECT Id, OwnerId, StartDateTime, EndDateTime FROM Event WHERE OwnerId IN :ownerIdList AND Id NOT IN :newEventIdList];
+        /**Query to find all events owned by users in the ownerIdList and initialize maps to store lists of Unix epoch start and end times
+        * by Owner Id
+        **/
+        List<Event> allEvents = [SELECT Id, OwnerId, StartDateTime, EndDateTime FROM Event WHERE OwnerId IN :ownerIdList];
         Map<Id,List<Long>> startEpochTimeByOwnerId = new Map<Id,List<Long>>();
         Map<Id,List<Long>> endEpochTimeByOwnerId = new Map<Id,List<Long>>();
+        //Iterate through allEvents list 
         for(Event eachEvent :allEvents){
+            /**If start time map does not contain the OwnerId key, initialize a list of Long values, convert the start time and end time
+            * to  Epoch time, add values to their respective lists, and add the key and list to the map
+            **/
             if(!startEpochTimeByOwnerId.containsKey(eachEvent.OwnerId)){
                 List<Long> startLong = new List<Long>();
                 Long startEpochTime = eachEvent.StartDateTime.getTime()/MSTOSECCONVERSION;
@@ -53,6 +62,10 @@ public with sharing class EventHandler extends TriggerHandler{
                 endLong.add(endEpochTime);
                 endEpochTimeByOwnerId.put(eachEvent.OwnerId, endLong);
             }
+            /**
+             * Get current list of start and end times, convert start and end time to Epoch time, add the value to the list and
+             * update the map
+             */
             else {
                 List<Long> currentStartTimes = startEpochTimeByOwnerId.get(eachEvent.OwnerId);
                 Long startEpochTime = eachEvent.StartDateTime.getTime()/MSTOSECCONVERSION;
@@ -63,21 +76,29 @@ public with sharing class EventHandler extends TriggerHandler{
                 currentEndTimes.add(endEpochTime);
                 endEpochTimeByOwnerId.put(eachEvent.OwnerId, currentEndTimes);
             }
-            System.debug('Start Time Map ' + startEpochTimeByOwnerId);
         }
 
+        /**Initialze Booleans to identify conflict with the Start and End times, and Strings to hold the standard format of the start
+        * and end times
+        **/
         for(Event eachEvent :newEvent){
-            Boolean conflictFound = false;
             Boolean startConflict = false;
             Boolean endConflict = false;
             String standardStartTime = '';
             String standardEndTime = '';
+            /**If the start time map contains the OwnerId as a key and the new Event Start and End maps contain the event Id as the key
+             * create lists from the maps
+             **/
             if(startEpochTimeByOwnerId.containsKey(eachEvent.OwnerId) && newEventStartDateEpochByEventId.containsKey(eachEvent.Id) && newEventEndDateEpochByEventId.containsKey(eachEvent.Id)){
                 List<Long> startTimes = startEpochTimeByOwnerId.get(eachEvent.OwnerId);
                 List<Long> endTimes = endEpochTimeByOwnerId.get(eachEvent.OwnerId);
+                //Iterate over start time Long values
                 for(Long eachStartTime :startTimes){
                     System.debug('Old Event Start ' + eachStartTime);
                     System.debug('New Event Start ' + newEventEndDateEpochByEventId.get(eachEvent.Id));
+                    /**If value of the start time Long value is less than or equal to the new Event Long time value,
+                     * set the standard time variable and update startConflict boolean to true
+                     **/
                     if(eachStartTime <= newEventEndDateEpochByEventId.get(eachEvent.Id)){
                         Long startEpoch = eachStartTime * MSTOSECCONVERSION;
                         standardStartTime = Datetime.newInstance(startEpoch).format();
@@ -85,9 +106,13 @@ public with sharing class EventHandler extends TriggerHandler{
                         break;
                     }  
                 }
+                //Iterate over end time Long values
                 for(Long eachEndTime :endTimes){
                     System.debug('Old Event Start ' + eachEndTime);
                     System.debug('New Event Start ' + newEventStartDateEpochByEventId.get(eachEvent.Id));
+                    /**If value of the start time Long value is less than or equal to the new Event Long time value,
+                     * set the standard time variable and update endConflict boolean to true
+                     **/
                     if(eachEndTime >= newEventStartDateEpochByEventId.get(eachEvent.Id)){
                         Long endEpoch = eachEndTime * MSTOSECCONVERSION;
                         standardEndTime = Datetime.newInstance(endEpoch).format();
@@ -95,6 +120,7 @@ public with sharing class EventHandler extends TriggerHandler{
                         break;
                     }  
                 }
+                //If conflict found on both start and end dates, show error to user
                 if(startConflict && endConflict){
                     eachEvent.adderror('This event starting on ' + eachEvent.StartDateTime.format() + ' and ending on ' + eachEvent.EndDateTime.format() + ' overlaps with another event starting on ' + standardStartTime + ' and ending on ' + standardEndTime + '. Please select a new time.');
                 }
