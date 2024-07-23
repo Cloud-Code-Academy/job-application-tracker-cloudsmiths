@@ -22,8 +22,38 @@
         <label>Send Quote</label>
     </standardValue>
     <standardValue>
-        <fullName>Action_Required</fullName>
+        <fullName>Saved_Job_Application_Action_Required</fullName>
         <default>false</default>
-        <label>Action Required</label>
+        <label>Saved Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Applying_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Applying Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Applied_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Applied Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Interviewing_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Interviewing Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Negotiating_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Negotiating Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Accepted_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Accepted Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Closed_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Closed Job Application Action Required</label>
     </standardValue>
 </StandardValueSet>
