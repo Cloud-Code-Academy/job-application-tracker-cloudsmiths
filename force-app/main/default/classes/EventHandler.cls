@@ -121,7 +121,9 @@ public with sharing class EventHandler extends TriggerHandler{
                     }  
                 }
                 //If conflict found on both start and end dates, show error to user
-                if(startConflict && endConflict){
+                Boolean conflicts = startConflict && endConflict;
+                System.debug(conflicts);
+                if(conflicts){
                     eachEvent.adderror('This event starting on ' + eachEvent.StartDateTime.format() + ' and ending on ' + eachEvent.EndDateTime.format() + ' overlaps with another event starting on ' + standardStartTime + ' and ending on ' + standardEndTime + '. Please select a new time.');
                 }
             }
