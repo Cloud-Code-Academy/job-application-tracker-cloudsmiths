@@ -25,6 +25,13 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         TriggerHandler.bypass('HiringTeamHandler');
         Database.insert (hiringTeamList, AccessLevel.SYSTEM_MODE);
         TriggerHandler.clearAllBypasses();
+        //Method to create Tasks for the Job Application record based on the Status of the Application
+        JobApplicationStatusHelper.tasksBasedOnStatus(newJobApplications, oldJobApplicationMap);
+    }
+
+    public override void afterUpdate(){
+        //The below method creates Tasks for Job Application record based on the Status of the Application
+        JobApplicationStatusHelper.tasksBasedOnStatus(newJobApplications, oldJobApplicationMap);
     }
 
     public static void setPrimaryContact(List<Job_Application__c> newJobApplications){

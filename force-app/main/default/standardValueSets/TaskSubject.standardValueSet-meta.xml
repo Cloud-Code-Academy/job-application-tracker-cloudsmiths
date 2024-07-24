@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sorted>false</sorted>
+    <standardValue>
+        <fullName>Call</fullName>
+        <default>false</default>
+        <label>Call</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Email</fullName>
+        <default>false</default>
+        <label>Email</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Send Letter</fullName>
+        <default>false</default>
+        <label>Send Letter</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Send Quote</fullName>
+        <default>false</default>
+        <label>Send Quote</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Saved_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Saved Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Applying_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Applying Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Applied_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Applied Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Interviewing_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Interviewing Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Negotiating_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Negotiating Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Accepted_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Accepted Job Application Action Required</label>
+    </standardValue>
+    <standardValue>
+        <fullName>Closed_Job_Application_Action_Required</fullName>
+        <default>false</default>
+        <label>Closed Job Application Action Required</label>
+    </standardValue>
+</StandardValueSet>
