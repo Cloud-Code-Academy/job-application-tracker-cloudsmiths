@@ -78,7 +78,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             insert updatedEvents;
         }
         catch (Exception e){
-            System.debug('Error Message ' + e);
             System.assert(e.getMessage().contains('Please select a new time.'),'Event inserted');
         }
             
@@ -153,7 +152,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             insert newEvents;
         }
         catch (Exception e){
-            System.debug('Error Message ' + e);
             System.assert(e.getMessage().contains('Event cannot be scheduled on a weekend.'),'Event inserted');
         }
             
@@ -200,7 +198,5 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             permSetList.add(permAssignment);
         }
         insert permSetList;
-
-        System.debug(userList);
     }
 }

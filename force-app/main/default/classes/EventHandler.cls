@@ -94,8 +94,6 @@ public with sharing class EventHandler extends TriggerHandler{
                 List<Long> endTimes = endEpochTimeByOwnerId.get(eachEvent.OwnerId);
                 //Iterate over start time Long values
                 for(Long eachStartTime :startTimes){
-                    System.debug('Old Event Start ' + eachStartTime);
-                    System.debug('New Event Start ' + newEventEndDateEpochByEventId.get(eachEvent.Id));
                     /**If value of the start time Long value is less than or equal to the new Event Long time value,
                      * set the standard time variable and update startConflict boolean to true
                      **/
@@ -108,8 +106,6 @@ public with sharing class EventHandler extends TriggerHandler{
                 }
                 //Iterate over end time Long values
                 for(Long eachEndTime :endTimes){
-                    System.debug('Old Event Start ' + eachEndTime);
-                    System.debug('New Event Start ' + newEventStartDateEpochByEventId.get(eachEvent.Id));
                     /**If value of the start time Long value is less than or equal to the new Event Long time value,
                      * set the standard time variable and update endConflict boolean to true
                      **/
@@ -122,7 +118,6 @@ public with sharing class EventHandler extends TriggerHandler{
                 }
                 //If conflict found on both start and end dates, show error to user
                 Boolean conflicts = startConflict && endConflict;
-                System.debug(conflicts);
                 if(conflicts){
                     eachEvent.adderror('This event starting on ' + eachEvent.StartDateTime.format() + ' and ending on ' + eachEvent.EndDateTime.format() + ' overlaps with another event starting on ' + standardStartTime + ' and ending on ' + standardEndTime + '. Please select a new time.');
                 }
