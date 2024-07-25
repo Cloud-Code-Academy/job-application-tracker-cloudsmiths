@@ -13,13 +13,10 @@ public with sharing class InterviewReminderHandler {
         Map<Id, String> userToEmail = getEmailAddresses(scheduledInterviews);
         Integer numberOfInterviews = scheduledInterviews.size();
 
-        // Reserves email capacity to send single email to the specified number of email addresses, after the current transaction commits.
         Messaging.reserveSingleEmailCapacity(numberOfInterviews);
 
-        // Stores all of the emails to be sent
         List<Messaging.SingleEmailMessage> allMsg = new List<Messaging.SingleEmailMessage>();
 
-        // Loop through each interview found for tomorrow and send an email to the interviewee (Event Owner)
         for (Event interview : scheduledInterviews) {
             String fromAddress = 'noreply@cloudsmiths.com';
             String fromDisplayName = 'Cloud Smiths Interview Reminder';
@@ -35,17 +32,11 @@ public with sharing class InterviewReminderHandler {
             htmlBody += 'Primary Contact: ' + jobIdToJobApp.get(interview.WhatId).Primary_Contact__c + '<br /><br />';
             htmlBody += 'Location: ' + jobIdToJobApp.get(interview.WhatId).Location__c + '<br /><br />';
             htmlBody += 'Location Type: ' + jobIdToJobApp.get(interview.WhatId).Location_Type__c + '<br /><br />';
-            htmlBody += 'Job Type: ' + jobIdToJobApp.get(interview.WhatId).Job_Type__c + '<br /><br />';
-            htmlBody += 'Salary: ' + jobIdToJobApp.get(interview.WhatId).Salary__c + '<br /><br />';
-            htmlBody += 'Salary Type: ' + jobIdToJobApp.get(interview.WhatId).Salary_Type__c + '<br /><br />';
-            htmlBody += 'Job Posting URL: ' + jobIdToJobApp.get(interview.WhatId).Job_Posting_URL__c + '<br /><br />';
-            htmlBody += '<br /><br />You rated this job a ' + jobIdToJobApp.get(interview.WhatId).Rating_Scale__c + ' / 5<br /><br />';
-            htmlBody += '<br /><br />Do not forget to prepare for the interview and to show up at least 15 minutes early.<br /><br />';
-            htmlBody += '<br /><br />GOODLUCK!<br /><br />';
+
+
             System.debug(htlmBody);
             Boolean saveAsActivity = true;
 
-            // Ensure that there is an Owner assigned to the interveiw Event and then ensure that we have the Owner's email
             if (interview.OwnerId != null && userToEmail.containsKey(interview.OwnerId)) {
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setReplyTo(fromAddress);
@@ -73,10 +64,9 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static List<Event> getScheduledInterviews() {
-        // Query all interviews scheduled for tomorrow
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c 
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null];
 
         // Remove Events not related to Job_Application__C reocrds
         for (Event interview : scheduledInterviews) {
@@ -92,13 +82,11 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Job_Application__c> getJobApplicationRecords(List<Event> scheduledInterviews) {
-        // Create a Set of all the Job Application record Id's
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
         }
 
-        // Query all the Job Applicaiton records related to the interview Events and store them in a Map
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c
                                                         FROM Job_Application__c
                                                         WHERE Id IN :jobAppIds]);
@@ -108,18 +96,15 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, String> getEmailAddresses(List<Event> scheduledInterviews) {
-        // Create a Set of all the Event OwnerId's
         Set<Id> userIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             userIds.add(interview.OwnerId);
         }
 
-        // Query all the User records for the OwnerId's
         List<User> interviewee = [SELECT Id, Email
                                     FROM User
                                     WHERE Id IN :userIds];
 
-        // Create a Map of the OwnerId for the interview Event to their Email
         Map<Id, String> userToEmail = new Map<Id, String>();
         for (User i : interviewee) {
             if (!String.isEmpty(i.email)) {

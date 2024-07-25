@@ -76,7 +76,7 @@ public with sharing class InterviewReminderHandler {
         // Query all interviews scheduled for tomorrow
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c 
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null]; // need to filter down to tomorrow only...
 
         // Remove Events not related to Job_Application__C reocrds
         for (Event interview : scheduledInterviews) {

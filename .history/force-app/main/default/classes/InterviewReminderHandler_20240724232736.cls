@@ -76,7 +76,7 @@ public with sharing class InterviewReminderHandler {
         // Query all interviews scheduled for tomorrow
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c 
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null];
 
         // Remove Events not related to Job_Application__C reocrds
         for (Event interview : scheduledInterviews) {
@@ -92,13 +92,11 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Job_Application__c> getJobApplicationRecords(List<Event> scheduledInterviews) {
-        // Create a Set of all the Job Application record Id's
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
         }
 
-        // Query all the Job Applicaiton records related to the interview Events and store them in a Map
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c
                                                         FROM Job_Application__c
                                                         WHERE Id IN :jobAppIds]);
@@ -108,18 +106,15 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, String> getEmailAddresses(List<Event> scheduledInterviews) {
-        // Create a Set of all the Event OwnerId's
         Set<Id> userIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             userIds.add(interview.OwnerId);
         }
 
-        // Query all the User records for the OwnerId's
         List<User> interviewee = [SELECT Id, Email
                                     FROM User
                                     WHERE Id IN :userIds];
 
-        // Create a Map of the OwnerId for the interview Event to their Email
         Map<Id, String> userToEmail = new Map<Id, String>();
         for (User i : interviewee) {
             if (!String.isEmpty(i.email)) {
