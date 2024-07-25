@@ -51,7 +51,7 @@ public with sharing class InterviewReminderHandler {
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setReplyTo(fromAddress);
                 mail.setSenderDisplayName(fromDisplayName);
-                mail.setToAddresses(toAddresses);
+                mail.setToAddresses(userToEmail.get(interview.OwnerId));
                 mail.setSubject(subject);
                 mail.setHtmlBody(htmlBody);
                 mail.setSaveAsActivity(saveAsActivity);

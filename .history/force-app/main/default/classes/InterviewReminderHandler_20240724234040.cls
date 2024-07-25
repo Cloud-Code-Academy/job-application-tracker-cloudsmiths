@@ -26,7 +26,7 @@ public with sharing class InterviewReminderHandler {
             List<String> toAddresses = new List<String>{userToEmail.get(interview.OwnerId)};
             String subject = 'REMINDER: You have an interview tomorrow!';
             String htmlBody = 'Hello ' + interview.Owner + ',<br /><br />';
-            htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '<br /><br />';
+            htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.Name + '<br /><br />';
             htmlBody += '<br /><br />Interview Type: ' + interview.Interview_Type__c + '<br /><br />';
             htmlBody += 'Interview Format: ' + interview.Interview_Format__c + '<br /><br />';
             htmlBody += '<br /><br />Job Information:<br /><br />';
@@ -43,7 +43,7 @@ public with sharing class InterviewReminderHandler {
             htmlBody += '<br /><br />You rated this job a ' + jobIdToJobApp.get(interview.WhatId).Rating_Scale__c + ' / 5<br /><br />';
             htmlBody += '<br /><br />Do not forget to prepare for the interview and to show up at least 15 minutes early.<br /><br />';
             htmlBody += '<br /><br />GOODLUCK!<br /><br />';
-            System.debug(htmlBody);
+            System.debug(htlmBody);
             Boolean saveAsActivity = true;
 
             // Ensure that there is an Owner assigned to the interveiw Event and then ensure that we have the Owner's email
@@ -51,7 +51,7 @@ public with sharing class InterviewReminderHandler {
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setReplyTo(fromAddress);
                 mail.setSenderDisplayName(fromDisplayName);
-                mail.setToAddresses(toAddresses);
+                mail.setToAddresses(userToEmail.get(interview.OwnerId));
                 mail.setSubject(subject);
                 mail.setHtmlBody(htmlBody);
                 mail.setSaveAsActivity(saveAsActivity);
