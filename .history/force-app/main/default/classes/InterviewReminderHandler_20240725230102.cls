@@ -7,9 +7,7 @@
 **/
 public with sharing class InterviewReminderHandler implements Schedulable {
 
-    public void execute (SchedulableContext sc) {
-        sendEmailReminder();
-    }
+    public void execute ()
 
     public static void sendEmailReminder() {
         List<Event> scheduledInterviews = getScheduledInterviews();
@@ -66,14 +64,12 @@ public with sharing class InterviewReminderHandler implements Schedulable {
 
         // Send emails and retrieve result of sending emails
         Boolean optAllOrNone = false;
-        if (!allMsg.isEmpty()){
-            List<Messaging.SendEmailResult> allMsgResults = Messaging.sendEmail(allMsg, optAllOrNone); // max of 100 "To" recipients...
-            for (Messaging.SendEmailResult msgResult : allMsgResults) {
-                if (msgResult.isSuccess()) {
-                    System.debug('Email sent successfully');
-                } else {
-                    System.debug('Error: ' + msgResult.getErrors());
-                }
+        List<Messaging.SendEmailResult> allMsgResults = Messaging.sendEmail(allMsg, optAllOrNone); // max of 100 "To" recipients...
+        for (Messaging.SendEmailResult msgResult : allMsgResults) {
+            if (msgResult.isSuccess()) {
+                System.debug('Email sent successfully');
+            } else {
+                System.debug('Error: ' + msgResult.getErrors());
             }
         }
         System.debug('Total Email Invociations: ' + Limits.getEmailInvocations() + ' / ' + Limits.getLimitEmailInvocations());

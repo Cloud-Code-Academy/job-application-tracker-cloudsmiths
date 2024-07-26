@@ -66,7 +66,8 @@ public with sharing class InterviewReminderHandler implements Schedulable {
 
         // Send emails and retrieve result of sending emails
         Boolean optAllOrNone = false;
-        if (!allMsg.isEmpty()){
+        if (allMsg != null){
+            System.debug(allMsg);
             List<Messaging.SendEmailResult> allMsgResults = Messaging.sendEmail(allMsg, optAllOrNone); // max of 100 "To" recipients...
             for (Messaging.SendEmailResult msgResult : allMsgResults) {
                 if (msgResult.isSuccess()) {

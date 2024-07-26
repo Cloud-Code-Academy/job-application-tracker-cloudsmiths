@@ -5,11 +5,7 @@
  * @last modified on  : 07-25-2024
  * @last modified by  : Riley Meyer
 **/
-public with sharing class InterviewReminderHandler implements Schedulable {
-
-    public void execute (SchedulableContext sc) {
-        sendEmailReminder();
-    }
+public with sharing class InterviewReminderHandler {
 
     public static void sendEmailReminder() {
         List<Event> scheduledInterviews = getScheduledInterviews();
@@ -50,6 +46,12 @@ public with sharing class InterviewReminderHandler implements Schedulable {
             htmlBody += 'Do not forget to prepare for the interview and to show up at least 15 minutes early.<br /><br />';
             htmlBody += 'GOODLUCK!';
             Boolean saveAsActivity = true;
+            System.debug('FROM: ' + fromAddress);
+            System.debug('FROM DISPLAY NAME: ' + fromDisplayName);
+            System.debug('TO: ' + toAddresses);
+            System.debug('SUBJECT: ' + subject);
+            System.debug('BODY: ' + htmlBody);
+            System.debug('SAVE AS ACTIVITY: ' + saveAsActivity);
 
             // Ensure that there is an Owner assigned to the interveiw Event and then ensure that we have the Owner's email
             if (interview.OwnerId != null && idToUser.containsKey(interview.OwnerId)) {
@@ -66,14 +68,12 @@ public with sharing class InterviewReminderHandler implements Schedulable {
 
         // Send emails and retrieve result of sending emails
         Boolean optAllOrNone = false;
-        if (!allMsg.isEmpty()){
-            List<Messaging.SendEmailResult> allMsgResults = Messaging.sendEmail(allMsg, optAllOrNone); // max of 100 "To" recipients...
-            for (Messaging.SendEmailResult msgResult : allMsgResults) {
-                if (msgResult.isSuccess()) {
-                    System.debug('Email sent successfully');
-                } else {
-                    System.debug('Error: ' + msgResult.getErrors());
-                }
+        List<Messaging.SendEmailResult> allMsgResults = Messaging.sendEmail(allMsg, optAllOrNone); // max of 100 "To" recipients...
+        for (Messaging.SendEmailResult msgResult : allMsgResults) {
+            if (msgResult.isSuccess()) {
+                System.debug('Email sent successfully');
+            } else {
+                System.debug('Error: ' + msgResult.getErrors());
             }
         }
         System.debug('Total Email Invociations: ' + Limits.getEmailInvocations() + ' / ' + Limits.getLimitEmailInvocations());
