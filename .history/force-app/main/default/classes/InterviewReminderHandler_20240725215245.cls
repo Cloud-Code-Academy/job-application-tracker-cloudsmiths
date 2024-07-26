@@ -23,9 +23,9 @@ public with sharing class InterviewReminderHandler {
         for (Event interview : scheduledInterviews) {
             String fromAddress = 'noreply@cloudsmiths.com';
             String fromDisplayName = 'Cloud Smiths Interview Reminder';
-            List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId).Email};
+            List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId)};
             String subject = 'REMINDER: You have an interview tomorrow!';
-            String htmlBody = 'Hello ' + idToUser.get(interview.OwnerId).FirstName + ',<br /><br />';
+            String htmlBody = 'Hello ' + interview.Owner + ',<br /><br />';
             htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '<br /><br />';
             htmlBody += '<br /><br />Interview Type: ' + interview.Interview_Type__c + '<br /><br />';
             htmlBody += 'Interview Format: ' + interview.Interview_Format__c + '<br /><br />';
@@ -121,7 +121,7 @@ public with sharing class InterviewReminderHandler {
                                     WHERE Id IN :userIds];
 
         // Create a Map of the OwnerId for the interview Event to their Email
-        Map<Id, User> userToEmail = new Map<Id, User>();
+        Map<Id, User> userToEmail = new Map<Id, String>();
         for (User i : interviewee) {
             if (!String.isEmpty(i.email)) {
                 userToEmail.put(i.Id, i);

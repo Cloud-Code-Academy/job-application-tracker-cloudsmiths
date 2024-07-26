@@ -10,7 +10,7 @@ public with sharing class InterviewReminderHandler {
     public static void sendEmailReminder() {
         List<Event> scheduledInterviews = getScheduledInterviews();
         Map<Id, Job_Application__c> jobIdToJobApp = getJobApplicationRecords(scheduledInterviews);
-        Map<Id, User> idToUser = getEmailAddresses(scheduledInterviews);
+        Map<Id, String> userToEmail = getEmailAddresses(scheduledInterviews);
         Integer numberOfInterviews = scheduledInterviews.size();
 
         // Reserves email capacity to send single email to the specified number of email addresses, after the current transaction commits.
@@ -23,9 +23,9 @@ public with sharing class InterviewReminderHandler {
         for (Event interview : scheduledInterviews) {
             String fromAddress = 'noreply@cloudsmiths.com';
             String fromDisplayName = 'Cloud Smiths Interview Reminder';
-            List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId).Email};
+            List<String> toAddresses = new List<String>{userToEmail.get(interview.OwnerId)};
             String subject = 'REMINDER: You have an interview tomorrow!';
-            String htmlBody = 'Hello ' + idToUser.get(interview.OwnerId).FirstName + ',<br /><br />';
+            String htmlBody = 'Hello ' + interview.Owner + ',<br /><br />';
             htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '<br /><br />';
             htmlBody += '<br /><br />Interview Type: ' + interview.Interview_Type__c + '<br /><br />';
             htmlBody += 'Interview Format: ' + interview.Interview_Format__c + '<br /><br />';
@@ -47,7 +47,7 @@ public with sharing class InterviewReminderHandler {
             Boolean saveAsActivity = true;
 
             // Ensure that there is an Owner assigned to the interveiw Event and then ensure that we have the Owner's email
-            if (interview.OwnerId != null && idToUser.containsKey(interview.OwnerId)) {
+            if (interview.OwnerId != null && userToEmail.containsKey(interview.OwnerId)) {
                 Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
                 mail.setReplyTo(fromAddress);
                 mail.setSenderDisplayName(fromDisplayName);
@@ -121,7 +121,7 @@ public with sharing class InterviewReminderHandler {
                                     WHERE Id IN :userIds];
 
         // Create a Map of the OwnerId for the interview Event to their Email
-        Map<Id, User> userToEmail = new Map<Id, User>();
+        Map<Id, User> userToEmail = new Map<Id, String>();
         for (User i : interviewee) {
             if (!String.isEmpty(i.email)) {
                 userToEmail.put(i.Id, i);

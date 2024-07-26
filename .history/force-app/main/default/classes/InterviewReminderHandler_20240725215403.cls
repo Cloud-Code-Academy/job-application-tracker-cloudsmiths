@@ -23,7 +23,7 @@ public with sharing class InterviewReminderHandler {
         for (Event interview : scheduledInterviews) {
             String fromAddress = 'noreply@cloudsmiths.com';
             String fromDisplayName = 'Cloud Smiths Interview Reminder';
-            List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId).Email};
+            List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId)};
             String subject = 'REMINDER: You have an interview tomorrow!';
             String htmlBody = 'Hello ' + idToUser.get(interview.OwnerId).FirstName + ',<br /><br />';
             htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '<br /><br />';
