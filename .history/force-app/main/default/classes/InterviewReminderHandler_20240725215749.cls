@@ -11,8 +11,6 @@ public with sharing class InterviewReminderHandler {
         List<Event> scheduledInterviews = getScheduledInterviews();
         Map<Id, Job_Application__c> jobIdToJobApp = getJobApplicationRecords(scheduledInterviews);
         Map<Id, User> idToUser = getEmailAddresses(scheduledInterviews);
-        Map<Id, Contact> idToContact = getContactRecords(scheduledInterviews, jobIdToJobApp);
-        Map<Id, Account> idToAccount = getAccountRecords(jobIdToJobApp);
         Integer numberOfInterviews = scheduledInterviews.size();
 
         // Reserves email capacity to send single email to the specified number of email addresses, after the current transaction commits.
@@ -28,30 +26,25 @@ public with sharing class InterviewReminderHandler {
             List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId).Email};
             String subject = 'REMINDER: You have an interview tomorrow!';
             String htmlBody = 'Hello ' + idToUser.get(interview.OwnerId).FirstName + ',<br /><br />';
-            htmlBody += 'You have an interview on ' + '<strong>' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + idToContact.get(interview.WhoId).Name + '</strong> <br /><br />';
-            htmlBody += '<strong>Interview Type:</strong> ' + interview.Interview_Type__c + '<br /><br />';
-            htmlBody += '<strong>Interview Format:</strong> ' + interview.Interview_Format__c + '<br /><br />';
-            htmlBody += '<br /><br /><strong><u>Job Information</u></strong><br /><br />';
-            htmlBody += '<strong>Job App Name:</strong> ' + jobIdToJobApp.get(interview.WhatId).Name + '<br /><br />';
-            htmlBody += '<strong>Company Name:</strong> ' + idToAccount.get(jobIdToJobApp.get(interview.WhatId).Company__c).Name + '<br /><br />';
-            htmlBody += '<strong>Position/Title:</strong> ' + jobIdToJobApp.get(interview.WhatId).Position_Title__c + '<br /><br />';
-            htmlBody += '<strong>Primary Contact:</strong> ' + idToContact.get(jobIdToJobApp.get(interview.WhatId).Primary_Contact__c).Name + '<br /><br />';
-            htmlBody += '<strong>Location:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location__c + '<br /><br />';
-            htmlBody += '<strong>Location Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location_Type__c + '<br /><br />';
-            htmlBody += '<strong>Job Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Job_Type__c + '<br /><br />';
-            htmlBody += '<strong>Salary:</strong> $' + jobIdToJobApp.get(interview.WhatId).Salary__c + '<br /><br />';
-            htmlBody += '<strong>Salary Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Salary_Type__c + '<br /><br />';
-            htmlBody += '<strong>Job Posting URL:</strong> ' + jobIdToJobApp.get(interview.WhatId).Job_Posting_URL__c + '<br /><br />';
-            htmlBody += '<br /><br />You rated this job a ' + '<strong>' + jobIdToJobApp.get(interview.WhatId).Rating_Scale__c + ' / 5</strong><br /><br />';
-            htmlBody += 'Do not forget to prepare for the interview and to show up at least 15 minutes early.<br /><br />';
-            htmlBody += 'GOODLUCK!';
+            htmlBody += '<br /><br />You have an interview on ' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '<br /><br />';
+            htmlBody += '<br /><br />Interview Type: ' + interview.Interview_Type__c + '<br /><br />';
+            htmlBody += 'Interview Format: ' + interview.Interview_Format__c + '<br /><br />';
+            htmlBody += '<br /><br />Job Information:<br /><br />';
+            htmlBody += 'Job App Name: ' + jobIdToJobApp.get(interview.WhatId).Name + '<br /><br />';
+            htmlBody += 'Company Name: ' + jobIdToJobApp.get(interview.WhatId).Company__c + '<br /><br />';
+            htmlBody += 'Position/Title: ' + jobIdToJobApp.get(interview.WhatId).Position_Title__c + '<br /><br />';
+            htmlBody += 'Primary Contact: ' + jobIdToJobApp.get(interview.WhatId).Primary_Contact__c + '<br /><br />';
+            htmlBody += 'Location: ' + jobIdToJobApp.get(interview.WhatId).Location__c + '<br /><br />';
+            htmlBody += 'Location Type: ' + jobIdToJobApp.get(interview.WhatId).Location_Type__c + '<br /><br />';
+            htmlBody += 'Job Type: ' + jobIdToJobApp.get(interview.WhatId).Job_Type__c + '<br /><br />';
+            htmlBody += 'Salary: ' + jobIdToJobApp.get(interview.WhatId).Salary__c + '<br /><br />';
+            htmlBody += 'Salary Type: ' + jobIdToJobApp.get(interview.WhatId).Salary_Type__c + '<br /><br />';
+            htmlBody += 'Job Posting URL: ' + jobIdToJobApp.get(interview.WhatId).Job_Posting_URL__c + '<br /><br />';
+            htmlBody += '<br /><br />You rated this job a ' + jobIdToJobApp.get(interview.WhatId).Rating_Scale__c + ' / 5<br /><br />';
+            htmlBody += '<br /><br />Do not forget to prepare for the interview and to show up at least 15 minutes early.<br /><br />';
+            htmlBody += '<br /><br />GOODLUCK!<br /><br />';
+            System.debug(htmlBody);
             Boolean saveAsActivity = true;
-            System.debug('FROM: ' + fromAddress);
-            System.debug('FROM DISPLAY NAME: ' + fromDisplayName);
-            System.debug('TO: ' + toAddresses);
-            System.debug('SUBJECT: ' + subject);
-            System.debug('BODY: ' + htmlBody);
-            System.debug('SAVE AS ACTIVITY: ' + saveAsActivity);
 
             // Ensure that there is an Owner assigned to the interveiw Event and then ensure that we have the Owner's email
             if (interview.OwnerId != null && idToUser.containsKey(interview.OwnerId)) {
@@ -82,7 +75,7 @@ public with sharing class InterviewReminderHandler {
     @TestVisible
     private static List<Event> getScheduledInterviews() {
         // Query all interviews scheduled for tomorrow
-        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c 
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
 
@@ -107,7 +100,7 @@ public with sharing class InterviewReminderHandler {
         }
 
         // Query all the Job Applicaiton records related to the interview Events and store them in a Map
-        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
+        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c
                                                         FROM Job_Application__c
                                                         WHERE Id IN :jobAppIds]);
 
@@ -123,7 +116,7 @@ public with sharing class InterviewReminderHandler {
         }
 
         // Query all the User records for the OwnerId's
-        List<User> interviewee = [SELECT Id, Email, FirstName, LastName, Name
+        List<User> interviewee = [SELECT Id, Email, FirstName, LastName
                                     FROM User
                                     WHERE Id IN :userIds];
 
@@ -135,42 +128,6 @@ public with sharing class InterviewReminderHandler {
             }
         }
         return userToEmail;
-    }
-
-    @TestVisible
-    private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> contactIds = new Set<Id>();
-        for (Event interview : scheduledInterviews) {
-            Id myId = interview.WhoId;
-            Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
-            if (myId != null && contactRecord){
-                contactIds.add(interview.WhoId);
-            }
-        }
-
-        for (Id key : jobIdToJobApp.keySet()) {
-            if (jobIdToJobApp.get(key).Primary_Contact__c != null) {
-                contactIds.add(jobIdToJobApp.get(key).Primary_Contact__c);
-            }
-        }
-
-        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
-                                                                FROM Contact
-                                                                WHERE Id IN :contactIds]);
-        return idToContact;
-    }
-
-    @TestVisible
-    private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> accountIds = new Set<Id>();
-        for (Id key : jobIdToJobApp.keySet()) {
-            accountIds.add(jobIdToJobApp.get(key).Company__c);
-        }
-
-        Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
-                                                                FROM Account
-                                                                WHERE Id IN :accountIds]);
-        return idToAccount;
     }
 
 }

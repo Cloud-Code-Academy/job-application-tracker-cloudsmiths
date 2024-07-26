@@ -139,7 +139,7 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> contactIds = new Set<Id>();
+        Set<Contact> contactIds = new Set<Contact>();
         for (Event interview : scheduledInterviews) {
             Id myId = interview.WhoId;
             Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
@@ -154,7 +154,7 @@ public with sharing class InterviewReminderHandler {
             }
         }
 
-        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
+        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName
                                                                 FROM Contact
                                                                 WHERE Id IN :contactIds]);
         return idToContact;

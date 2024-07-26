@@ -33,9 +33,9 @@ public with sharing class InterviewReminderHandler {
             htmlBody += '<strong>Interview Format:</strong> ' + interview.Interview_Format__c + '<br /><br />';
             htmlBody += '<br /><br /><strong><u>Job Information</u></strong><br /><br />';
             htmlBody += '<strong>Job App Name:</strong> ' + jobIdToJobApp.get(interview.WhatId).Name + '<br /><br />';
-            htmlBody += '<strong>Company Name:</strong> ' + idToAccount.get(jobIdToJobApp.get(interview.WhatId).Company__c).Name + '<br /><br />';
+            htmlBody += '<strong>Company Name:</strong> ' + jobIdToJobApp.get(interview.WhatId).Company__c + '<br /><br />';
             htmlBody += '<strong>Position/Title:</strong> ' + jobIdToJobApp.get(interview.WhatId).Position_Title__c + '<br /><br />';
-            htmlBody += '<strong>Primary Contact:</strong> ' + idToContact.get(jobIdToJobApp.get(interview.WhatId).Primary_Contact__c).Name + '<br /><br />';
+            htmlBody += '<strong>Primary Contact:</strong> ' + jobIdToJobApp.get(interview.WhatId).Primary_Contact__c + '<br /><br />';
             htmlBody += '<strong>Location:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location__c + '<br /><br />';
             htmlBody += '<strong>Location Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location_Type__c + '<br /><br />';
             htmlBody += '<strong>Job Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Job_Type__c + '<br /><br />';
@@ -139,7 +139,7 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> contactIds = new Set<Id>();
+        Set<Contact> contactIds = new Set<Contact>();
         for (Event interview : scheduledInterviews) {
             Id myId = interview.WhoId;
             Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
@@ -154,7 +154,7 @@ public with sharing class InterviewReminderHandler {
             }
         }
 
-        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
+        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName
                                                                 FROM Contact
                                                                 WHERE Id IN :contactIds]);
         return idToContact;
@@ -162,15 +162,7 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> accountIds = new Set<Id>();
-        for (Id key : jobIdToJobApp.keySet()) {
-            accountIds.add(jobIdToJobApp.get(key).Company__c);
-        }
-
-        Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
-                                                                FROM Account
-                                                                WHERE Id IN :accountIds]);
-        return idToAccount;
+        
     }
 
 }

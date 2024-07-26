@@ -154,7 +154,7 @@ public with sharing class InterviewReminderHandler {
             }
         }
 
-        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
+        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName
                                                                 FROM Contact
                                                                 WHERE Id IN :contactIds]);
         return idToContact;

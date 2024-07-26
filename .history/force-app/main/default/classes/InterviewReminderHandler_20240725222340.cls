@@ -28,14 +28,14 @@ public with sharing class InterviewReminderHandler {
             List<String> toAddresses = new List<String>{idToUser.get(interview.OwnerId).Email};
             String subject = 'REMINDER: You have an interview tomorrow!';
             String htmlBody = 'Hello ' + idToUser.get(interview.OwnerId).FirstName + ',<br /><br />';
-            htmlBody += 'You have an interview on ' + '<strong>' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + idToContact.get(interview.WhoId).Name + '</strong> <br /><br />';
+            htmlBody += 'You have an interview on ' + '<strong>' + interview.StartDateTime + ' at ' + interview.Location + ' with ' + interview.WhoId + '</strong> <br /><br />';
             htmlBody += '<strong>Interview Type:</strong> ' + interview.Interview_Type__c + '<br /><br />';
             htmlBody += '<strong>Interview Format:</strong> ' + interview.Interview_Format__c + '<br /><br />';
             htmlBody += '<br /><br /><strong><u>Job Information</u></strong><br /><br />';
             htmlBody += '<strong>Job App Name:</strong> ' + jobIdToJobApp.get(interview.WhatId).Name + '<br /><br />';
-            htmlBody += '<strong>Company Name:</strong> ' + idToAccount.get(jobIdToJobApp.get(interview.WhatId).Company__c).Name + '<br /><br />';
+            htmlBody += '<strong>Company Name:</strong> ' + jobIdToJobApp.get(interview.WhatId).Company__c + '<br /><br />';
             htmlBody += '<strong>Position/Title:</strong> ' + jobIdToJobApp.get(interview.WhatId).Position_Title__c + '<br /><br />';
-            htmlBody += '<strong>Primary Contact:</strong> ' + idToContact.get(jobIdToJobApp.get(interview.WhatId).Primary_Contact__c).Name + '<br /><br />';
+            htmlBody += '<strong>Primary Contact:</strong> ' + jobIdToJobApp.get(interview.WhatId).Primary_Contact__c + '<br /><br />';
             htmlBody += '<strong>Location:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location__c + '<br /><br />';
             htmlBody += '<strong>Location Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Location_Type__c + '<br /><br />';
             htmlBody += '<strong>Job Type:</strong> ' + jobIdToJobApp.get(interview.WhatId).Job_Type__c + '<br /><br />';
@@ -123,7 +123,7 @@ public with sharing class InterviewReminderHandler {
         }
 
         // Query all the User records for the OwnerId's
-        List<User> interviewee = [SELECT Id, Email, FirstName, LastName, Name
+        List<User> interviewee = [SELECT Id, Email, FirstName, LastName
                                     FROM User
                                     WHERE Id IN :userIds];
 
@@ -139,38 +139,7 @@ public with sharing class InterviewReminderHandler {
 
     @TestVisible
     private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> contactIds = new Set<Id>();
-        for (Event interview : scheduledInterviews) {
-            Id myId = interview.WhoId;
-            Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
-            if (myId != null && contactRecord){
-                contactIds.add(interview.WhoId);
-            }
-        }
-
-        for (Id key : jobIdToJobApp.keySet()) {
-            if (jobIdToJobApp.get(key).Primary_Contact__c != null) {
-                contactIds.add(jobIdToJobApp.get(key).Primary_Contact__c);
-            }
-        }
-
-        Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
-                                                                FROM Contact
-                                                                WHERE Id IN :contactIds]);
-        return idToContact;
-    }
-
-    @TestVisible
-    private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        Set<Id> accountIds = new Set<Id>();
-        for (Id key : jobIdToJobApp.keySet()) {
-            accountIds.add(jobIdToJobApp.get(key).Company__c);
-        }
-
-        Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
-                                                                FROM Account
-                                                                WHERE Id IN :accountIds]);
-        return idToAccount;
+        
     }
 
 }
