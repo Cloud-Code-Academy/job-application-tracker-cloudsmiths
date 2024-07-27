@@ -5,6 +5,25 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-string tempvar = 'Enter_your_name_here';
-System.debug('Hello World!');
-System.debug('My name is ' + tempvar);
+// string tempvar = 'Enter_your_name_here';
+// System.debug('Hello World!');
+// System.debug('My name is ' + tempvar);
+
+// Datetime now = Datetime.now();
+// System.debug(now);
+
+// Account acc = new Account();
+// try{
+//     insert acc;
+// }
+// catch(Exception e){
+//     System.debug(e);
+// }
+
+// Boolean startConflict = true;
+// Boolean endConflict = true;
+// Boolean conflict = startConflict && endConflict;
+// System.debug(conflict);
+
+List<Hiring_Team__c> hiringTeamList = HiringTeamController.getHiringTeamList('a00ak00000EsOF0AAN');
+System.debug(hiringTeamList);
