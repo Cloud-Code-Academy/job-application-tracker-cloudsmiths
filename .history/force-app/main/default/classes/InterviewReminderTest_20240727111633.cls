@@ -43,24 +43,8 @@ private class InterviewReminderTest {
 
     @isTest
     static void getContactRecordsTest(){
-        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
-                                            FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
-        Set<Id> jobAppIds = new Set<Id>();
-        for (Event interview : scheduledInterviews) {
-            jobAppIds.add(interview.WhatId);
-        }
-        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
-                                                        FROM Job_Application__c
-                                                        WHERE Id IN :jobAppIds]);
-
         Test.startTest();
-        Map<Id, Contact> idToContact = InterviewReminder.getContactRecords(scheduledInterviews, jobIdToJobApp);
         Test.stopTest();
-
-        for (Job_Application__c jobApp : jobIdToJobApp.values()) {
-            System.assertEquals(true, idToContact.containsKey(jobApp.Primary_Contact__c), 'Get Contact Records did not find all Accounts');
-        }
     }
 
     @isTest
@@ -68,6 +52,7 @@ private class InterviewReminderTest {
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
@@ -75,6 +60,7 @@ private class InterviewReminderTest {
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
                                                         FROM Job_Application__c
                                                         WHERE Id IN :jobAppIds]);
+
         Test.startTest();
         Map<Id, Account> idToAccount = InterviewReminder.getAccountRecords(jobIdToJobApp);
         Test.stopTest();

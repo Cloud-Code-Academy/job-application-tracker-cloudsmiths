@@ -52,14 +52,15 @@ private class InterviewReminderTest {
         }
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
                                                         FROM Job_Application__c
-                                                        WHERE Id IN :jobAppIds]);
+                                                        WHERE Id IN :jobAppIds AND Primary_Contact__c != null]);
 
+        System.deub(jobIdToJobApp.size());
         Test.startTest();
         Map<Id, Contact> idToContact = InterviewReminder.getContactRecords(scheduledInterviews, jobIdToJobApp);
         Test.stopTest();
 
         for (Job_Application__c jobApp : jobIdToJobApp.values()) {
-            System.assertEquals(true, idToContact.containsKey(jobApp.Primary_Contact__c), 'Get Contact Records did not find all Accounts');
+            System.assertEquals(true, idToContact.containsKey(jobApp.Company__c), 'Get Contact Records did not find all Accounts');
         }
     }
 
