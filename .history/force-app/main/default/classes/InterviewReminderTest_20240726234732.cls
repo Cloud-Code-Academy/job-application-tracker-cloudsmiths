@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-27-2024
+ * @last modified on  : 07-26-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
@@ -65,8 +65,8 @@ private class InterviewReminderTest {
         Map<Id, Account> idToAccount = InterviewReminder.getAccountRecords(jobIdToJobApp);
         Test.stopTest();
 
-        for (Job_Application__c jobApp : jobIdToJobApp.values()) {
-            System.assertEquals(true, idToAccount.containsKey(jobApp.Company__c), 'Get Account Records did not find all Accounts');
+        for (Id i : jobAppIds) {
+            System.assertEquals(true, idToAccount.containsKey(i), 'Get Account Records did not find all Accounts');
         }
     }
 }

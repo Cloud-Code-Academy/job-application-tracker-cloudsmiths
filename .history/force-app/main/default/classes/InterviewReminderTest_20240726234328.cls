@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-27-2024
+ * @last modified on  : 07-26-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
@@ -53,19 +53,17 @@ private class InterviewReminderTest {
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
         
-        Set<Id> jobAppIds = new Set<Id>();
-        for (Event interview : scheduledInterviews) {
-            jobAppIds.add(interview.WhatId);
+
+        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>();
+        for (Job_Application__c jobApp : jobApps) {
+            jobIdToJobApp.put(jobApp.Id, jobApp);
         }
-        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
-                                                        FROM Job_Application__c
-                                                        WHERE Id IN :jobAppIds]);
 
         Test.startTest();
         Map<Id, Account> idToAccount = InterviewReminder.getAccountRecords(jobIdToJobApp);
         Test.stopTest();
 
-        for (Job_Application__c jobApp : jobIdToJobApp.values()) {
+        for (Job_Application__c jobApp : jobApps) {
             System.assertEquals(true, idToAccount.containsKey(jobApp.Company__c), 'Get Account Records did not find all Accounts');
         }
     }
