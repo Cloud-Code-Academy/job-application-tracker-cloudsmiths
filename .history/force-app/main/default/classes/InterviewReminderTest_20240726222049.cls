@@ -96,11 +96,11 @@ private class InterviewReminderTest {
         Database.insert(jobApps, AccessLevel.SYSTEM_MODE);
 
         for (Job_Application__c jobApp : jobApps) {
-            if (jobApp.Application_Date__c == Date.today()) {
+            if (jobApp.Application_Date__c = Date.today()) {
                 Test.setCreatedDate(jobApp.Id, Date.today().addDays(-35));
-            } else if (jobApp.Application_Date__c == Date.today().addDays(-40)) {
+            } else if (jobApp.Application_Date__c = Date.today().addDays(-40)) {
                 Test.setCreatedDate(jobApp.Id, Date.today().addDays(-45));
-            } else if (jobApp.Application_Date__c == Date.today().addDays(-60)) {
+            } else if (jobApp.Application_Date__c = Date.today().addDays(-60)) {
                 Test.setCreatedDate(jobApp.Id, Date.today().addDays(-70));
             } else {
                 Test.setCreatedDate(jobApp.Id, Date.today());
@@ -114,17 +114,17 @@ private class InterviewReminderTest {
             e.Subject = 'Interview';
             e.WhoId = jobApps[i].Primary_Contact__c;
             e.WhatId = jobApps[i].Id;
-            if (jobApps[i].Application_Date__c == Date.today()) {
+            if (jobApps[i].Application_Date__c = Date.today()) {
                 e.Interview_Type__c = 'Screening Interview';
                 e.Interview_Format__c = 'Phone';
                 e.StartDateTime = DateTime.now().addDays(1).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
-            } else if (jobApps[i].Application_Date__c == Date.today().addDays(-40)) {
+            } else if (jobApps[i].Application_Date__c = Date.today().addDays(-40)) {
                 e.Interview_Type__c = 'Panel Interview';
                 e.Interview_Format__c = 'Video';
-                e.StartDateTime = DateTime.now().addDays(-39).addHours(i);
+                e.StartDate = TimeDateTime.now().addDays(-39).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
-            } else if (jobApps[i].Application_Date__c == Date.today().addDays(-60)) {
+            } else if (jobApps[i].Application_Date__c = Date.today().addDays(-60)) {
                 e.Interview_Type__c = 'Technical Interview';
                 e.Interview_Format__c = 'On-Site';
                 e.StartDateTime = DateTime.now().addDays(-59).addHours(i);

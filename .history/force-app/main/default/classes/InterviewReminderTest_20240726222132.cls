@@ -122,7 +122,7 @@ private class InterviewReminderTest {
             } else if (jobApps[i].Application_Date__c == Date.today().addDays(-40)) {
                 e.Interview_Type__c = 'Panel Interview';
                 e.Interview_Format__c = 'Video';
-                e.StartDateTime = DateTime.now().addDays(-39).addHours(i);
+                e.StartDate = TimeDateTime.now().addDays(-39).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             } else if (jobApps[i].Application_Date__c == Date.today().addDays(-60)) {
                 e.Interview_Type__c = 'Technical Interview';
