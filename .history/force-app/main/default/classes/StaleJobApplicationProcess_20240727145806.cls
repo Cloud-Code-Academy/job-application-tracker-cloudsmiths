@@ -15,7 +15,7 @@ public with sharing class StaleJobApplicationProcess implements Schedulable {
     * System.debug(jobID);
     **/
 
-    // Allows this class to be scheduled nightly to clean up stale jobs
+    // Allows this class to be scheduled nightly to send email reminders to interviewees
     public void execute (SchedulableContext sc) {
         updateStaleJobApplications();
     }

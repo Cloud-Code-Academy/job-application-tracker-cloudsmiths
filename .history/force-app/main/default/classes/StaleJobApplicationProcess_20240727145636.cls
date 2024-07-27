@@ -7,19 +7,6 @@
 **/
 public with sharing class StaleJobApplicationProcess implements Schedulable {
 
-    /**
-    * You can run these lines of code in Developer Console > Apex Anonymous to schedul this Class to run nightly at 1 AM
-    * StaleJobApplicationProcess i = new StaleJobApplicationProcess ();
-    * String sch = '0 0 1 * * ?';
-    * String jobID = System.schedule('Stale JobApp Process', sch, i);
-    * System.debug(jobID);
-    **/
-
-    // Allows this class to be scheduled nightly to clean up stale jobs
-    public void execute (SchedulableContext sc) {
-        updateStaleJobApplications();
-    }
-
     @future
     public static void updateStaleJobApplications() {
         // Retrieve stale Job Application Records
