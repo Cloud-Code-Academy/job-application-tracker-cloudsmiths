@@ -177,7 +177,6 @@ public with sharing class InterviewReminder implements Schedulable {
             accountIds.add(jobIdToJobApp.get(key).Company__c);
         }
 
-        // Create a Map of Id to Account for the Account records
         Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
                                                                 FROM Account
                                                                 WHERE Id IN :accountIds]);

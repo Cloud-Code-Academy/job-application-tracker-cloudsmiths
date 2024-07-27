@@ -171,13 +171,11 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        // Create a set of the Account Ids related to the Job Applications for tomorrows Interviews
         Set<Id> accountIds = new Set<Id>();
         for (Id key : jobIdToJobApp.keySet()) {
             accountIds.add(jobIdToJobApp.get(key).Company__c);
         }
 
-        // Create a Map of Id to Account for the Account records
         Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
                                                                 FROM Account
                                                                 WHERE Id IN :accountIds]);

@@ -85,7 +85,7 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static List<Event> getScheduledInterviews() {
-        // Query all interviews scheduled for tomorrow that have a WhatId and a Subject of Interview
+        // Query all interviews scheduled for tomorrow
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
@@ -99,19 +99,18 @@ public with sharing class InterviewReminder implements Schedulable {
                 scheduledInterviews.remove(index);
             }
         }
-
         return scheduledInterviews;
     }
 
     @TestVisible
     private static Map<Id, Job_Application__c> getJobApplicationRecords(List<Event> scheduledInterviews) {
-        // Create a Set of all the Job Application record Ids related to tomorrows interviews
+        // Create a Set of all the Job Application record Id's
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
         }
 
-        // Query all the Job Applicaiton records related to tomorrows interviews and store them in a Map
+        // Query all the Job Applicaiton records related to the interview Events and store them in a Map
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
                                                         FROM Job_Application__c
                                                         WHERE Id IN :jobAppIds]);
@@ -121,18 +120,18 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, User> getEmailAddresses(List<Event> scheduledInterviews) {
-        // Create a Set of all the Owner Ids for tomorrows interviews
+        // Create a Set of all the Event OwnerId's
         Set<Id> userIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             userIds.add(interview.OwnerId);
         }
 
-        // Query all the User records for the Owner Ids
+        // Query all the User records for the OwnerId's
         List<User> interviewee = [SELECT Id, Email, FirstName, LastName, Name
                                     FROM User
                                     WHERE Id IN :userIds];
 
-        // Create a Map of the Owner Id for tomorrows interviews to their User record
+        // Create a Map of the OwnerId for the interview Event to their Email
         Map<Id, User> idToUser = new Map<Id, User>();
         for (User i : interviewee) {
             if (!String.isEmpty(i.email)) {
@@ -144,9 +143,7 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        // Create a set of Contact Ids related to tomorrows interviews and their related Job Application records
         Set<Id> contactIds = new Set<Id>();
-        // Remove WhoId's not related to a Contact record from tomorrows Interviews
         for (Event interview : scheduledInterviews) {
             Id myId = interview.WhoId;
             Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
@@ -155,14 +152,12 @@ public with sharing class InterviewReminder implements Schedulable {
             }
         }
 
-        // Add the Primary Contact Ids from the Job Application records to the set
         for (Id key : jobIdToJobApp.keySet()) {
             if (jobIdToJobApp.get(key).Primary_Contact__c != null) {
                 contactIds.add(jobIdToJobApp.get(key).Primary_Contact__c);
             }
         }
 
-        // Create a Map of the Id to the Contact records
         Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
                                                                 FROM Contact
                                                                 WHERE Id IN :contactIds]);
@@ -171,13 +166,11 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        // Create a set of the Account Ids related to the Job Applications for tomorrows Interviews
         Set<Id> accountIds = new Set<Id>();
         for (Id key : jobIdToJobApp.keySet()) {
             accountIds.add(jobIdToJobApp.get(key).Company__c);
         }
 
-        // Create a Map of Id to Account for the Account records
         Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
                                                                 FROM Account
                                                                 WHERE Id IN :accountIds]);

@@ -144,9 +144,8 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, Contact> getContactRecords(List<Event> scheduledInterviews, Map<Id, Job_Application__c> jobIdToJobApp) {
-        // Create a set of Contact Ids related to tomorrows interviews and their related Job Application records
+        // Create a set of Contact Ids related to tomorrows interviews
         Set<Id> contactIds = new Set<Id>();
-        // Remove WhoId's not related to a Contact record from tomorrows Interviews
         for (Event interview : scheduledInterviews) {
             Id myId = interview.WhoId;
             Boolean contactRecord = myId.getSObjectType() == Contact.getSObjectType();
@@ -155,14 +154,12 @@ public with sharing class InterviewReminder implements Schedulable {
             }
         }
 
-        // Add the Primary Contact Ids from the Job Application records to the set
         for (Id key : jobIdToJobApp.keySet()) {
             if (jobIdToJobApp.get(key).Primary_Contact__c != null) {
                 contactIds.add(jobIdToJobApp.get(key).Primary_Contact__c);
             }
         }
 
-        // Create a Map of the Id to the Contact records
         Map<Id, Contact> idToContact = new Map<Id, Contact>([SELECT Id, FirstName, LastName, Name
                                                                 FROM Contact
                                                                 WHERE Id IN :contactIds]);
@@ -171,13 +168,11 @@ public with sharing class InterviewReminder implements Schedulable {
 
     @TestVisible
     private static Map<Id, Account> getAccountRecords(Map<Id, Job_Application__c> jobIdToJobApp) {
-        // Create a set of the Account Ids related to the Job Applications for tomorrows Interviews
         Set<Id> accountIds = new Set<Id>();
         for (Id key : jobIdToJobApp.keySet()) {
             accountIds.add(jobIdToJobApp.get(key).Company__c);
         }
 
-        // Create a Map of Id to Account for the Account records
         Map<Id, Account> idToAccount = new Map<Id, Account>([SELECT Id, Name
                                                                 FROM Account
                                                                 WHERE Id IN :accountIds]);
