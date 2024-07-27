@@ -169,7 +169,7 @@ public class TestDataFactory {
             }
             interviews.add(e);
         }
-
+        System.debug('Number of Interview Events To Create: ' + interviews.size());
         Database.insert(interviews, AccessLevel.SYSTEM_MODE);
 
         return interviews;

@@ -24,7 +24,7 @@ private class InterviewReminderTest {
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
 
         Test.startTest();
-        InterviewReminder.sendEmailReminder();
+        InterviewReminder.sendEmailReminder(scheduledInterviews);
         Integer invocations = Limits.getEmailInvocations();
         Test.stopTest();
     }

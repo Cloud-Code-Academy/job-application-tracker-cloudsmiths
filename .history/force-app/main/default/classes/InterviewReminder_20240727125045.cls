@@ -17,14 +17,15 @@ public with sharing class InterviewReminder implements Schedulable {
         Map<Id, User> idToUser = getEmailAddresses(scheduledInterviews);
         Map<Id, Contact> idToContact = getContactRecords(scheduledInterviews, jobIdToJobApp);
         Map<Id, Account> idToAccount = getAccountRecords(jobIdToJobApp);
-        Integer singleEmailLimit = 15;
+        Integer numberOfInterviews = 15;
+        System.debug(numberOfInterviews);
 
         /**
         * Reserves email capacity to send single email to the specified number of email addresses, after the current transaction commits.
         * This limit is set for 5000 email recipients per day per org in Paid Orgs.
-        * This limit is set for 15 email recipients per day per org in Developer Edition Orgs
+        * This limit is set for 50 email recipients per day per org in Developer Edition Orgs
         **/
-        Messaging.reserveSingleEmailCapacity(singleEmailLimit);
+        Messaging.reserveSingleEmailCapacity(numberOfInterviews);
 
         // Stores all of the emails to be sent
         List<Messaging.SingleEmailMessage> allMsg = new List<Messaging.SingleEmailMessage>();

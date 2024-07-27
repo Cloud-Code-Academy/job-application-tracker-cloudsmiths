@@ -22,6 +22,7 @@ private class InterviewReminderTest {
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        System.debug('Interviews Scheduled for Tomorrow: ' + scheduledInterviews.size());
 
         Test.startTest();
         InterviewReminder.sendEmailReminder();

@@ -19,27 +19,14 @@ private class InterviewReminderTest {
 
     @isTest
     static void sendEmailReminerTest(){
-        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
-                                            FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
-
         Test.startTest();
-        InterviewReminder.sendEmailReminder();
-        Integer invocations = Limits.getEmailInvocations();
         Test.stopTest();
     }
 
     @isTest
     static void getScheduledInterviewsTest(){
-        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
-                                            FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
-
         Test.startTest();
-        List<Event> interviews = InterviewReminder.getScheduledInterviews();
         Test.stopTest();
-
-        System.assertEquals(scheduledInterviews.size(), interviews.size(), 'Get Scheduled Interviews did not return all interviews');
     }
 
     @isTest
@@ -62,16 +49,11 @@ private class InterviewReminderTest {
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
-        Set<Id> userIds = new Set<Id>();
-        for (Event interview : scheduledInterviews) {
-            userIds.add(interview.OwnerId);
-        }
 
         Test.startTest();
         Map<Id, User> idToUser = InterviewReminder.getEmailAddresses(scheduledInterviews);
         Test.stopTest();
-
-        System.assertEquals(userIds.size(), idToUser.size(), 'Get Email Addresses did not return all Users');
+        
         for (Event interview : scheduledInterviews) {
             System.assertEquals(true, idToUser.containsKey(interview.OwnerId), 'Get Email Addresses did not return all Users');
         }

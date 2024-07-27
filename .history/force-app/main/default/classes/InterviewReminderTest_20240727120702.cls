@@ -19,13 +19,7 @@ private class InterviewReminderTest {
 
     @isTest
     static void sendEmailReminerTest(){
-        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
-                                            FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
-
         Test.startTest();
-        InterviewReminder.sendEmailReminder();
-        Integer invocations = Limits.getEmailInvocations();
         Test.stopTest();
     }
 

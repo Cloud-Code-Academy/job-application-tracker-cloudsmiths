@@ -89,7 +89,7 @@ public class TestDataFactory {
             j.Position_Title__c = 'Developer' + i + 'at' + accounts[i].Name;
             j.Description__c = 'Dummy Job Description';
             j.Job_Posting_URL__c = 'https://jooble.org';
-            if (i < 15) {
+            if (i < 250) {
                 j.Job_Type__c = 'Full-time';
                 j.Salary__c = 150;
                 j.Salary_Type__c = 'Annual';
@@ -98,7 +98,7 @@ public class TestDataFactory {
                 j.Application_Date__c = Date.today();
                 j.Follow_Up_Date__c = null;
                 j.Rating_Scale__c = '2';
-            } else if (i < 200) {
+            } else if (i < 350) {
                 j.Job_Type__c = 'Part-time';
                 j.Salary__c = 58;
                 j.Salary_Type__c = 'Hourly';
@@ -154,22 +154,22 @@ public class TestDataFactory {
             } else if (jobApps[i].Application_Date__c == Date.today().addDays(-40)) {
                 e.Interview_Type__c = 'Panel Interview';
                 e.Interview_Format__c = 'Video';
-                e.StartDateTime = DateTime.now().addDays(-39);
+                e.StartDateTime = DateTime.now().addDays(-39).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             } else if (jobApps[i].Application_Date__c == Date.today().addDays(-60)) {
                 e.Interview_Type__c = 'Technical Interview';
                 e.Interview_Format__c = 'On-Site';
-                e.StartDateTime = DateTime.now().addDays(-59);
+                e.StartDateTime = DateTime.now().addDays(-59).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             } else {
                 e.Interview_Type__c = 'Hiring Manager Interview';
                 e.Interview_Format__c = 'On-Site';
-                e.StartDateTime = DateTime.now().addDays(i);
+                e.StartDateTime = DateTime.now().addDays(i).addHours(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             }
             interviews.add(e);
         }
-
+        System.debug('Number of Interview Events To Create: ' + interviews.size());
         Database.insert(interviews, AccessLevel.SYSTEM_MODE);
 
         return interviews;
