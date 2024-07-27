@@ -17,7 +17,7 @@ private class InterviewReminderTest {
         List<Event> interviews = TestDataFactory.createInterviews(jobApps, numRecords);
     }
 
-    @IsTest
+    @isTest
     static void sendEmailReminerTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -31,7 +31,7 @@ private class InterviewReminderTest {
         System.assert(invocations > 0, 'No emails were sent');
     }
 
-    @IsTest
+    @isTest
     static void getScheduledInterviewsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -44,7 +44,7 @@ private class InterviewReminderTest {
         System.assertEquals(scheduledInterviews.size(), interviews.size(), 'Get Scheduled Interviews did not return all interviews');
     }
 
-    @IsTest
+    @isTest
     static void getJobApplicationRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -59,7 +59,7 @@ private class InterviewReminderTest {
         }
     }
 
-    @IsTest
+    @isTest
     static void getEmailAddressesTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -79,7 +79,7 @@ private class InterviewReminderTest {
         }
     }
 
-    @IsTest
+    @isTest
     static void getContactRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -101,7 +101,7 @@ private class InterviewReminderTest {
         }
     }
 
-    @IsTest
+    @isTest
     static void getAccountRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event

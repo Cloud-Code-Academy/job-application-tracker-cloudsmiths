@@ -27,7 +27,7 @@ public class TestDataFactory {
             u.UserName='testemail' + i + '@cloudsmiths.com';
             users.add(u);
         }
-        System.debug('Number of Users to Insert: ' + users.size());
+        System.debug('Number of Users to Inser: ' + users);
         Database.insert(users, AccessLevel.SYSTEM_MODE);
 
         // Prevents Mixed DML Operation Error

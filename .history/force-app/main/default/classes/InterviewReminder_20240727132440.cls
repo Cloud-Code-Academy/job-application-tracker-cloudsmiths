@@ -9,10 +9,7 @@ public with sharing class InterviewReminder implements Schedulable {
 
     /**
     * You can run these lines of code in Developer Console > Apex Anonymous to schedul this Class to run nightly at 1 AM
-    * InterviewReminder i = new InterviewReminder ();
-    * String sch = '0 0 1 * * ?';
-    * String jobID = System.schedule('Interview Reminder', sch, i);
-    * System.debug(jobID);
+    * 
     **/
 
     // Allows this class to be scheduled nightly to send email reminders to interviewees
