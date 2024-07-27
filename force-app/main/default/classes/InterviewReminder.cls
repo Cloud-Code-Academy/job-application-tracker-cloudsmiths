@@ -2,10 +2,10 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-25-2024
+ * @last modified on  : 07-26-2024
  * @last modified by  : Riley Meyer
 **/
-public with sharing class InterviewReminderHandler implements Schedulable {
+public with sharing class InterviewReminder implements Schedulable {
 
     public void execute (SchedulableContext sc) {
         sendEmailReminder();
