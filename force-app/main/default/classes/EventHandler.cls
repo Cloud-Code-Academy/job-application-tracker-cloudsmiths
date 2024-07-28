@@ -37,9 +37,9 @@ public with sharing class EventHandler extends TriggerHandler{
                 //Setting variables to hold start and end day of the week and returning error if the day is a weekend
                 String eventStartDay = eachEvent.StartDateTime.format('EEEE');
                 String eventEndDay = eachEvent.EndDateTime.format('EEEE');
-                    if(eventStartDay == 'Saturday' || eventStartDay == 'Sunday' || eventEndDay == 'Saturday' || eventEndDay == 'Sunday'){
-                        eachEvent.adderror('Event cannot be scheduled on a weekend. Please select a different day.');
-                    }
+                if(eventStartDay == 'Saturday' || eventStartDay == 'Sunday' || eventEndDay == 'Saturday' || eventEndDay == 'Sunday'){
+                    eachEvent.adderror('Event cannot be scheduled on a weekend. Please select a different day.');
+                }
             }
 
         /**
