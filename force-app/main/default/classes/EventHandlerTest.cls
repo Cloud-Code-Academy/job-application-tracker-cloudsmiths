@@ -52,6 +52,7 @@ public with sharing class EventHandlerTest extends TriggerHandler{
 
         Database.insert(newEvents, AccessLevel.SYSTEM_MODE);
     }
+
     @IsTest
     static void testEventValidationOverLappingEvents(){
 
@@ -81,7 +82,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             System.assert(e.getMessage().contains('Please select a new time.'),'Event inserted');
         }
             
-        
         Test.stopTest();
         
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
