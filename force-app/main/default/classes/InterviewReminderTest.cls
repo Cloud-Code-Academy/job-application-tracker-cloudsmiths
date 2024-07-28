@@ -1,0 +1,124 @@
+/**
+ * @description       : 
+ * @author            : Riley Meyer
+ * @group             : 
+ * @last modified on  : 07-27-2024
+ * @last modified by  : Riley Meyer
+**/
+@IsTest
+private class InterviewReminderTest {
+    @TestSetup
+    static void makeData(){
+        Integer numRecords = 400;
+        List<User> users = TestDataFactory.createUsers(numRecords);
+        List<Account> accounts = TestDataFactory.createAccounts(numRecords);
+        List<Contact> contacts = TestDataFactory.createContacts(accounts, numRecords);
+        List<Job_Application__c> jobApps = TestDataFactory.createJobApplications(users, accounts, contacts, numRecords);
+        List<Event> interviews = TestDataFactory.createInterviews(jobApps, numRecords);
+    }
+
+    @IsTest
+    static void sendEmailReminerTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+
+        Test.startTest();
+        InterviewReminder.sendEmailReminder();
+        Integer invocations = Limits.getEmailInvocations();
+        Test.stopTest();
+
+        System.assert(invocations > 0, 'No emails were sent');
+    }
+
+    @IsTest
+    static void getScheduledInterviewsTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+
+        Test.startTest();
+        List<Event> interviews = InterviewReminder.getScheduledInterviews();
+        Test.stopTest();
+
+        System.assertEquals(scheduledInterviews.size(), interviews.size(), 'Get Scheduled Interviews did not return all interviews');
+    }
+
+    @IsTest
+    static void getJobApplicationRecordsTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        Test.startTest();
+        Map<Id, Job_Application__c> jobIdToJobApp = InterviewReminder.getJobApplicationRecords(scheduledInterviews);
+        Test.stopTest();
+
+        System.assertEquals(scheduledInterviews.size(), jobIdToJobApp.size(), 'Get Job Application Records did not return all Job Applications');
+        for (Event interview : scheduledInterviews) {
+            System.assertEquals(true, jobIdToJobApp.containsKey(interview.WhatId), 'Get Job Application Records did not return all Job Applications');
+        }
+    }
+
+    @IsTest
+    static void getEmailAddressesTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        Set<Id> userIds = new Set<Id>();
+        for (Event interview : scheduledInterviews) {
+            userIds.add(interview.OwnerId);
+        }
+
+        Test.startTest();
+        Map<Id, User> idToUser = InterviewReminder.getEmailAddresses(scheduledInterviews);
+        Test.stopTest();
+
+        System.assertEquals(userIds.size(), idToUser.size(), 'Get Email Addresses did not return all Users');
+        for (Event interview : scheduledInterviews) {
+            System.assertEquals(true, idToUser.containsKey(interview.OwnerId), 'Get Email Addresses did not return all Users');
+        }
+    }
+
+    @IsTest
+    static void getContactRecordsTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        Set<Id> jobAppIds = new Set<Id>();
+        for (Event interview : scheduledInterviews) {
+            jobAppIds.add(interview.WhatId);
+        }
+        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
+                                                        FROM Job_Application__c
+                                                        WHERE Id IN :jobAppIds]);
+
+        Test.startTest();
+        Map<Id, Contact> idToContact = InterviewReminder.getContactRecords(scheduledInterviews, jobIdToJobApp);
+        Test.stopTest();
+
+        for (Job_Application__c jobApp : jobIdToJobApp.values()) {
+            System.assertEquals(true, idToContact.containsKey(jobApp.Primary_Contact__c), 'Get Contact Records did not find all Accounts');
+        }
+    }
+
+    @IsTest
+    static void getAccountRecordsTest(){
+        List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
+                                            FROM Event
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        Set<Id> jobAppIds = new Set<Id>();
+        for (Event interview : scheduledInterviews) {
+            jobAppIds.add(interview.WhatId);
+        }
+        Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
+                                                        FROM Job_Application__c
+                                                        WHERE Id IN :jobAppIds]);
+        Test.startTest();
+        Map<Id, Account> idToAccount = InterviewReminder.getAccountRecords(jobIdToJobApp);
+        Test.stopTest();
+
+        for (Job_Application__c jobApp : jobIdToJobApp.values()) {
+            System.assertEquals(true, idToAccount.containsKey(jobApp.Company__c), 'Get Account Records did not find all Accounts');
+        }
+    }
+}
