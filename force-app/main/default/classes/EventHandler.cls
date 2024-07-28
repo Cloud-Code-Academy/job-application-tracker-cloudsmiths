@@ -65,11 +65,11 @@ public with sharing class EventHandler extends TriggerHandler{
                 endLong.add(endEpochTime);
                 endEpochTimeByOwnerId.put(eachEvent.OwnerId, endLong);
             }
-            /**
+            else {
+                /**
              * Get current list of start and end times, convert start and end time to Epoch time, add the value to the list and
              * update the map
              */
-            else {
                 List<Long> currentStartTimes = startEpochTimeByOwnerId.get(eachEvent.OwnerId);
                 Long startEpochTime = eachEvent.StartDateTime.getTime()/MSTOSECCONVERSION;
                 currentStartTimes.add(startEpochTime);
