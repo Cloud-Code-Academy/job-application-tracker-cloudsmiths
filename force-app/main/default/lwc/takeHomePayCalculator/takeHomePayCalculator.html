@@ -1,0 +1,19 @@
+<template>
+    <lightning-card>
+    <div class="slds-m-around_medium">
+        <h1 class="slds-text-heading_small"> Take Home Pay Calculator </h1>
+    </div>
+    <div>
+        <lightning-input class = 'slds-p-left_medium slds-p-right_medium' type = "number" name = "income" label = "Job Income (Salary)" onchange = {inputChangeHandler} formatter = "currency" step="0.01" placeholder = "Enter your Annual Salary"></lightning-input>
+        <lightning-input class = 'slds-p-left_medium slds-p-right_medium' type = "number" name = "federalTax" onchange = {inputChangeHandler} label = "Federal Tax" value = "0.12" formatter = "percent" step="0.01"></lightning-input>
+        <lightning-input class = 'slds-p-left_medium slds-p-right_medium' type = "number" name = "socialSecurity" value = "0.062" onchange = {inputChangeHandler} label = "Social Security" formatter = "percent" step="0.001"></lightning-input>
+        <lightning-input class = 'slds-p-left_medium slds-p-right_medium' type = "number" name = "medicare" value = "0.0145" onchange = {inputChangeHandler} label = "Medicare" formatter = "percent" step="0.0001"></lightning-input>
+    </div>
+    <div class= "slds-p-around_medium">
+        <lightning-button variant = "brand" label = "Calculate" onclick = {calculateHandler} class = 'slds-p-left_xxx-large slds-p-right_xxx-small slds-p-top_medium slds-p-bottom_medium'></lightning-button>
+    </div>
+    <lightning-layout-item padding = 'around-large' class = 'slds-text-heading_medium slds-p-left_medium' >
+        <lightning-formatted-text value = {currentResult}></lightning-formatted-text>
+    </lightning-layout-item>
+    </lightning-card>
+</template>
