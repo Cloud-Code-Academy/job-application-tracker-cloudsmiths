@@ -2,13 +2,13 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-27-2024
+ * @last modified on  : 07-28-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class StaleJobApplicationProcess implements Schedulable {
 
     /**
-    * You can run these lines of code in Developer Console > Apex Anonymous to schedul this Class to run nightly at 1 AM
+    * You can run these lines of code in Developer Console > Apex Anonymous to schedule this Class to run nightly at 1 AM
     * StaleJobApplicationProcess i = new StaleJobApplicationProcess ();
     * String sch = '0 0 1 * * ?';
     * String jobID = System.schedule('Stale JobApp Process', sch, i);
