@@ -155,7 +155,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             System.assert(e.getMessage().contains('Event cannot be scheduled on a weekend.'),'Event inserted');
         }
             
-        
         Test.stopTest();
         
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
