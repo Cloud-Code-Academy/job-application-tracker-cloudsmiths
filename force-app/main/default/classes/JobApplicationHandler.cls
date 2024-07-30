@@ -17,6 +17,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
 
     public override void beforeInsert(){
         setPrimaryContact(newJobApplications);
+        taxWithholdingCalculator(newJobApplications);
 
     }
 
@@ -27,6 +28,10 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         TriggerHandler.clearAllBypasses();
         //Method to create Tasks for the Job Application record based on the Status of the Application
         JobApplicationStatusHelper.tasksBasedOnStatus(newJobApplications, oldJobApplicationMap);
+    }
+
+    public override void beforeUpdate(){
+        taxWithholdingCalculator(newJobApplications);
     }
 
     public override void afterUpdate(){
@@ -89,14 +94,10 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
     public static void taxWithholdingCalculator(List<Job_Application__c> newJobApplications){
         //Assign tax filing status
         List<String> filingStatus = new List<String>();
-        List<Decimal> salaryAmount = new List<Decimal>();
-        Integer weeklyHours = 40;
-        Integer weeksInYear = 52;
         for(Job_Application__c jobApp :newJobApplications){
             if(jobApp.Tax_Filing_Status__c != null){
                 filingStatus.add(jobApp.Tax_Filing_Status__c);
             }
-            salaryAmount.add(annualSalaryCalculator(jobApp));
         }
         //Get Tax rate data
         List<Tax_Withholding__mdt> federalTaxRates = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
@@ -109,8 +110,10 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         Tax_Withholding__mdt medicareRateRecord = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
                                                     FROM Tax_Withholding__mdt
                                                     WHERE Type__c = 'Medicare'];
-        Decimal socialSecurityRate = socialSecurityRateRecord.Tax_Rate__c;
-        Decimal medicareRate = medicareRateRecord.Tax_Rate__c;
+        Decimal socialSecurityRate = socialSecurityRateRecord.Tax_Rate__c / 100;
+        System.debug('Social Security Rate: ' + socialSecurityRate);
+        Decimal medicareRate = medicareRateRecord.Tax_Rate__c / 100;
+        System.debug('Medicare Rate: ' + medicareRate);
         
         //Initial map of Job Applications By Id and populate the map
         Map<Id,Job_Application__c> jobApplictionByIdMap = new Map<Id,Job_Application__c>();
@@ -121,18 +124,50 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         }
 
         for(Job_Application__c jobApp :newJobApplications){
+            if(jobApp.Tax_Filing_Status__c == null || jobApp.Salary__c == null){
+                jobApp.Federal_Income_Tax_Withheld__c = 0;
+                jobApp.Medicare_Withheld__c = 0;
+                jobApp.Social_Security_Withheld__c = 0;
+                jobApp.Take_Home_Amount__c = 0;
+                continue;
+            }
             Decimal annualSalary = annualSalaryCalculator(jobApp);
-            Decimal remainingSalary = annualSalary;
             Decimal socialSecurityWithheld = annualSalary * socialSecurityRate;
             Decimal medicareWithheld = annualSalary * medicareRate;
-            Decimal taxWithheld = medicareWithheld + socialSecurityWithheld;
+            Decimal fedTaxWithheld = 0;
+            Decimal remainingSalary = annualSalary;
+            Decimal amountTaxed = 0;
+            System.debug('Initial Annual Salary: ' + annualSalary);
+            System.debug('Social Security Withheld: ' + socialSecurityWithheld);
+            System.debug('Medicare Withheld: ' + medicareWithheld);
+            System.debug('Remaining Salary: ' + remainingSalary);
             for(Tax_Withholding__mdt taxRate :federalTaxRates){
                 Decimal rate = taxRate.Tax_Rate__c / 100;
-                if(annualSalary != null && annualSalary >= taxRate.Minimum_Amount__c && annualSalary <= taxRate.Maximum_Amount__c){
-                    taxWithheld = annualSalary * rate;
-                    remainingSalary -= taxWithheld;
+                if(annualSalary != null && annualSalary >= taxRate.Minimum_Amount__c && annualSalary <= taxRate.Maximum_Amount__c && (annualSalary - amountTaxed) > 0){
+                    fedTaxWithheld += (annualSalary - amountTaxed) * rate;
+                    remainingSalary =  annualSalary - fedTaxWithheld;
+                    amountTaxed = remainingSalary - fedTaxWithheld;
+                    System.debug('Fed Tax Withheld ' + fedTaxWithheld);
+                    System.debug('Remaining Salary: ' + remainingSalary);
+                    System.debug('Amount Taxed: ' + amountTaxed);
+                }
+                else if(annualSalary != null && annualSalary >= taxRate.Minimum_Amount__c && annualSalary > taxRate.Maximum_Amount__c){
+                    fedTaxWithheld += (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c) * rate;
+                    remainingSalary = annualSalary - (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c);
+                    amountTaxed += (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c);
+                    System.debug('Fed Tax Withheld ' + fedTaxWithheld);
+                    System.debug('Remaining Salary: ' + remainingSalary);
+                    System.debug('Amount Taxed: ' + amountTaxed);
                 }
             }
+            jobApp.Federal_Income_Tax_Withheld__c = fedTaxWithheld;
+            jobApp.Medicare_Withheld__c = medicareWithheld;
+            jobApp.Social_Security_Withheld__c = socialSecurityWithheld;
+            jobApp.Take_Home_Amount__c = annualSalary - (fedTaxWithheld + medicareWithheld + socialSecurityWithheld);
+            System.debug('Federal Income Withheld: ' + fedTaxWithheld);
+            System.debug('Medicare Withheld: ' + medicareWithheld);
+            System.debug('Social Security Withheld ' + socialSecurityWithheld);
+            System.debug('Take-home Pay ' + remainingSalary);
         }
     }
 
