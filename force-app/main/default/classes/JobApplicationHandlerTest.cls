@@ -112,4 +112,33 @@ public with sharing class JobApplicationHandlerTest {
             }
         }
     }
+
+    @IsTest
+    static void testTaxWithholdingCalculator(){
+        //Create 84 accounts
+        //Create Job App for each account. One app for each filing status, tax bracket, and deduction type
+        //run code
+        //Verify yearly and monthly calculations are correct
+
+    }
+
+    @IsTest
+    static void testdeductionUpdatesAndValidation(){
+        //Create 9 accounts
+        /**
+         * Create Job Apps for each account under below conditions:
+         * Standard Deduction with Itemized Populated
+         * Standard Deduction with Standard Populated
+         * Itemized with Standard Populated
+         * Itemized with Itemized Populated
+         * Deduction null with deductions null
+         * Deduction None with Standard populated
+         * Deduction None with Itemized populated
+         * Itemized with null itemized amount
+         **/
+        //Run code for all except error
+        //validate
+        //run code for error
+        //validate
+    }
 }
