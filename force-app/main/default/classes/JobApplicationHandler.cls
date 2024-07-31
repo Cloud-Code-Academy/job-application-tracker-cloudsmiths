@@ -18,6 +18,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
     public override void beforeInsert(){
         setPrimaryContact(newJobApplications);
         taxWithholdingCalculator(newJobApplications);
+        deductionUpdatesAndValidation(newJobApplications);
 
     }
 
@@ -32,6 +33,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
 
     public override void beforeUpdate(){
         taxWithholdingCalculator(newJobApplications);
+        deductionUpdatesAndValidation(newJobApplications);
     }
 
     public override void afterUpdate(){
@@ -99,22 +101,43 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                 filingStatus.add(jobApp.Tax_Filing_Status__c);
             }
         }
-        //Get Tax rate data
-        List<Tax_Withholding__mdt> federalTaxRates = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
+        //Get Tax rate data, set rate variables, initialize and populate map of Standard Deductions
+        List<Tax_Withholding__mdt> taxMetadata = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
                                                 FROM Tax_Withholding__mdt
-                                                WHERE Filing_Status__c IN :filingStatus
                                                 Order By Tax_Rate__c ASC];
-        Tax_Withholding__mdt socialSecurityRateRecord = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
-                                                    FROM Tax_Withholding__mdt
-                                                    WHERE Type__c = 'Social Security'];
-        Tax_Withholding__mdt medicareRateRecord = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
-                                                    FROM Tax_Withholding__mdt
-                                                    WHERE Type__c = 'Medicare'];
+        List<Tax_Withholding__mdt> federalTaxRates = new List<Tax_Withholding__mdt>();
+        Tax_Withholding__mdt socialSecurityRateRecord = new Tax_Withholding__mdt();
+        Tax_Withholding__mdt medicareRateRecord =  new Tax_Withholding__mdt();
+        List<Tax_Withholding__mdt> standardDeductionsList = new List<Tax_Withholding__mdt>();
+        for(Tax_Withholding__mdt taxRate :taxMetadata){
+            if(taxRate.Type__c == 'Federal Income' && filingStatus.contains(taxRate.Filing_Status__c)){
+                federalTaxRates.add(taxRate);
+            }
+            if(taxRate.Type__c == 'Standard Deduction'){
+                standardDeductionsList.add(taxRate);
+            }
+            if(taxRate.Type__c == 'Social Security'){
+                socialSecurityRateRecord = taxRate;
+            }
+            if(taxRate.Type__c == 'Medicare'){
+                medicareRateRecord = taxRate;
+            }
+        }
+        
         Decimal socialSecurityRate = socialSecurityRateRecord.Tax_Rate__c / 100;
         System.debug('Social Security Rate: ' + socialSecurityRate);
+        Decimal socialSecurityCap = socialSecurityRateRecord.Maximum_Amount__c;
+        System.debug('Social Security Cap: ' + socialSecurityCap);
         Decimal medicareRate = medicareRateRecord.Tax_Rate__c / 100;
         System.debug('Medicare Rate: ' + medicareRate);
-        
+        Decimal medicareCap = medicareRateRecord.Maximum_Amount__c;
+        Map<String,Decimal> standardDeductionByFilingStatusMap = new Map<String,Decimal>();
+        for(Tax_Withholding__mdt deduction :standardDeductionsList){
+            if(!standardDeductionByFilingStatusMap.containsKey(deduction.Filing_Status__c)){
+                standardDeductionByFilingStatusMap.put(deduction.Filing_Status__c,deduction.Maximum_Amount__c);
+            }
+        }
+
         //Initial map of Job Applications By Id and populate the map
         Map<Id,Job_Application__c> jobApplictionByIdMap = new Map<Id,Job_Application__c>();
         for(Job_Application__c jobApp :newJobApplications){
@@ -124,6 +147,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         }
 
         for(Job_Application__c jobApp :newJobApplications){
+            
             if(jobApp.Tax_Filing_Status__c == null || jobApp.Salary__c == null){
                 jobApp.Federal_Income_Tax_Withheld__c = 0;
                 jobApp.Medicare_Withheld__c = 0;
@@ -131,9 +155,33 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                 jobApp.Take_Home_Amount__c = 0;
                 continue;
             }
+            
+            Integer monthsInYear = 12;
+            Decimal taxableIncome = 0;
+            Decimal socialSecurityWithheld = 0;
+            Decimal medicareWithheld = 0;
             Decimal annualSalary = annualSalaryCalculator(jobApp);
-            Decimal socialSecurityWithheld = annualSalary * socialSecurityRate;
-            Decimal medicareWithheld = annualSalary * medicareRate;
+            if((socialSecurityCap != null && annualSalary < socialSecurityCap) || socialSecurityCap == null){
+                socialSecurityWithheld = annualSalary * socialSecurityRate;
+            }
+            else if(socialSecurityCap != null && annualSalary >= socialSecurityCap){
+                socialSecurityWithheld = socialSecurityCap * socialSecurityRate;
+            }
+            if((medicareCap != null && annualSalary < medicareCap) || medicareCap == null){
+                medicareWithheld = annualSalary * medicareRate;
+            }
+            else if(medicareCap != null && annualSalary >= medicareCap){
+                medicareWithheld = medicareCap * medicareRate;
+            }
+            if(jobApp.Deduction_Type__c == 'Standard Deduction' && standardDeductionByFilingStatusMap.containsKey(jobApp.Tax_Filing_Status__c)){
+                taxableIncome = annualSalary - standardDeductionByFilingStatusMap.get(jobApp.Tax_Filing_Status__c);
+            }
+            else if(jobApp.Deduction_Type__c == 'Itemized Deduction' && jobApp.Itemized_Deduction_Amount__c != null){
+                taxableIncome = annualSalary - jobApp.Itemized_Deduction_Amount__c;
+            }
+            else{
+                taxableIncome = annualSalary;
+            }
             Decimal fedTaxWithheld = 0;
             Decimal remainingSalary = annualSalary;
             Decimal amountTaxed = 0;
@@ -143,18 +191,30 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             System.debug('Remaining Salary: ' + remainingSalary);
             for(Tax_Withholding__mdt taxRate :federalTaxRates){
                 Decimal rate = taxRate.Tax_Rate__c / 100;
-                if(annualSalary != null && annualSalary >= taxRate.Minimum_Amount__c && annualSalary <= taxRate.Maximum_Amount__c && (annualSalary - amountTaxed) > 0){
-                    fedTaxWithheld += (annualSalary - amountTaxed) * rate;
-                    remainingSalary =  annualSalary - fedTaxWithheld;
+                if(taxRate.Filing_Status__c == jobApp.Tax_Filing_Status__c && taxableIncome != null && taxableIncome >= taxRate.Minimum_Amount__c && taxableIncome <= taxRate.Maximum_Amount__c && taxRate.Maximum_Amount__c != null && (taxableIncome - amountTaxed) > 0){
+                    fedTaxWithheld += (taxableIncome - amountTaxed) * rate;
+                    remainingSalary =  taxableIncome - fedTaxWithheld;
                     amountTaxed = remainingSalary - fedTaxWithheld;
+                    System.debug('Withheld for this bracket ' + (taxableIncome - amountTaxed) * rate);
                     System.debug('Fed Tax Withheld ' + fedTaxWithheld);
                     System.debug('Remaining Salary: ' + remainingSalary);
                     System.debug('Amount Taxed: ' + amountTaxed);
                 }
-                else if(annualSalary != null && annualSalary >= taxRate.Minimum_Amount__c && annualSalary > taxRate.Maximum_Amount__c){
+                else if(taxRate.Filing_Status__c == jobApp.Tax_Filing_Status__c && annualSalary != null && taxableIncome >= taxRate.Minimum_Amount__c && taxableIncome > taxRate.Maximum_Amount__c){
                     fedTaxWithheld += (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c) * rate;
-                    remainingSalary = annualSalary - (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c);
+                    remainingSalary = taxableIncome - (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c);
                     amountTaxed += (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c);
+                    System.debug('Withheld for this bracket ' + (taxRate.Maximum_Amount__c - taxRate.Minimum_Amount__c) * rate);
+                    System.debug('Fed Tax Withheld ' + fedTaxWithheld);
+                    System.debug('Remaining Salary: ' + remainingSalary);
+                    System.debug('Amount Taxed: ' + amountTaxed);
+                }
+
+                else if(taxRate.Filing_Status__c == jobApp.Tax_Filing_Status__c && taxableIncome != null && taxRate.Maximum_Amount__c == null && taxableIncome >= taxRate.Minimum_Amount__c && (taxableIncome - amountTaxed) > 0){
+                    fedTaxWithheld += (taxableIncome - taxRate.Minimum_Amount__c) * rate;
+                    remainingSalary = annualSalary - fedTaxWithheld;
+                    amountTaxed = remainingSalary - fedTaxWithheld;
+                    System.debug('Withheld for this bracket ' + (taxableIncome - taxRate.Minimum_Amount__c) * rate);
                     System.debug('Fed Tax Withheld ' + fedTaxWithheld);
                     System.debug('Remaining Salary: ' + remainingSalary);
                     System.debug('Amount Taxed: ' + amountTaxed);
@@ -164,6 +224,13 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             jobApp.Medicare_Withheld__c = medicareWithheld;
             jobApp.Social_Security_Withheld__c = socialSecurityWithheld;
             jobApp.Take_Home_Amount__c = annualSalary - (fedTaxWithheld + medicareWithheld + socialSecurityWithheld);
+            jobApp.Monthly_Federal_Income_Tax_Withheld__c = fedTaxWithheld / monthsInYear;
+            jobApp.Monthly_Medicare_Withheld__c = medicareWithheld / monthsInYear;
+            jobApp.Monthly_Social_Security_Withheld__c = socialSecurityWithheld / monthsInYear;
+            jobApp.Monthly_Take_Home_Amount__c = ((annualSalary - (fedTaxWithheld + medicareWithheld + socialSecurityWithheld)) / monthsInYear);
+            if(jobApp.Deduction_Type__c == 'Standard Deduction' && standardDeductionByFilingStatusMap.containsKey(jobApp.Tax_Filing_Status__c)){
+                jobApp.Standard_Deduction__c = standardDeductionByFilingStatusMap.get(jobApp.Tax_Filing_Status__c);
+            }
             System.debug('Federal Income Withheld: ' + fedTaxWithheld);
             System.debug('Medicare Withheld: ' + medicareWithheld);
             System.debug('Social Security Withheld ' + socialSecurityWithheld);
@@ -179,12 +246,30 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             annualSalary = jobApp.Salary__c;
         }
         else if (jobApp.Salary__c != null && jobApp.Salary_Type__c == 'Hourly'){
-            annualSalary = (jobApp.Salary__c * weeklyHours) * weeksInYear;
+            annualSalary = ((jobApp.Salary__c * weeklyHours) * weeksInYear);
         }
         else if (jobApp.Salary__c != null && jobApp.Salary_Type__c == 'Weekly'){
-            annualSalary = jobApp.Salary__c * weeksInYear;
+            annualSalary = (jobApp.Salary__c * weeksInYear);
         }
 
         return annualSalary;
+    }
+
+    public static void deductionUpdatesAndValidation(List<Job_Application__c> newJobApplicationMap){
+        for(Job_Application__c jobApp :newJobApplicationMap){
+            if(jobApp.Deduction_Type__c == 'Standard Deduction' && jobApp.Itemized_Deduction_Amount__c != null){
+                jobApp.Itemized_Deduction_Amount__c = null;
+            }
+            if(jobApp.Deduction_Type__c == 'Itemized Deduction' && jobApp.Standard_Deduction__c != null){
+                jobApp.Standard_Deduction__c = null;
+            }
+            if((jobApp.Deduction_Type__c == null || jobApp.Deduction_Type__c == 'None') && (jobApp.Standard_Deduction__c != null || jobApp.Itemized_Deduction_Amount__c != null)){
+                jobApp.Standard_Deduction__c = null;
+                jobApp.Itemized_Deduction_Amount__c = null;
+            }
+            if(jobApp.Deduction_Type__c == 'Itemized Deduction' && jobApp.Itemized_Deduction_Amount__c == null){
+                jobApp.addError('If Itemized Deduction is selected, the Itemized Deduction Amount must be provided');
+            }
+        }
     }
 }
