@@ -148,7 +148,7 @@
         <customLabel>true</customLabel>
         <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
-        <label>Yearly Pay Data</label>
+        <label>Yearly Pay Data (Estimate)</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
@@ -175,7 +175,7 @@
         <customLabel>true</customLabel>
         <detailHeading>true</detailHeading>
         <editHeading>true</editHeading>
-        <label>Monthly Pay Data</label>
+        <label>Monthly Pay Data (Estimate)</label>
         <layoutColumns>
             <layoutItems>
                 <behavior>Edit</behavior>
