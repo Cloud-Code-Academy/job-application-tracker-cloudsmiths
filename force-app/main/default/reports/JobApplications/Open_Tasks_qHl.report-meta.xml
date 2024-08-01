@@ -26,7 +26,6 @@
             <operator>contains</operator>
             <value>JA-</value>
         </criteriaItems>
-        <language>en_US</language>
     </filter>
     <format>Tabular</format>
     <name>Open Tasks</name>
