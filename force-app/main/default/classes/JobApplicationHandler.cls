@@ -161,18 +161,6 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             Decimal socialSecurityWithheld = 0;
             Decimal medicareWithheld = 0;
             Decimal annualSalary = annualSalaryCalculator(jobApp);
-            if((socialSecurityCap != null && annualSalary < socialSecurityCap) || socialSecurityCap == null){
-                socialSecurityWithheld = annualSalary * socialSecurityRate;
-            }
-            else if(socialSecurityCap != null && annualSalary >= socialSecurityCap){
-                socialSecurityWithheld = socialSecurityCap * socialSecurityRate;
-            }
-            if((medicareCap != null && annualSalary < medicareCap) || medicareCap == null){
-                medicareWithheld = annualSalary * medicareRate;
-            }
-            else if(medicareCap != null && annualSalary >= medicareCap){
-                medicareWithheld = medicareCap * medicareRate;
-            }
             if(jobApp.Deduction_Type__c == 'Standard Deduction' && standardDeductionByFilingStatusMap.containsKey(jobApp.Tax_Filing_Status__c)){
                 taxableIncome = annualSalary - standardDeductionByFilingStatusMap.get(jobApp.Tax_Filing_Status__c);
             }
@@ -182,6 +170,21 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             else{
                 taxableIncome = annualSalary;
             }
+            if((socialSecurityCap != null && taxableIncome < socialSecurityCap) || socialSecurityCap == null){
+                socialSecurityWithheld = taxableIncome * socialSecurityRate;
+            }
+            else if(socialSecurityCap != null && taxableIncome >= socialSecurityCap){
+                socialSecurityWithheld = socialSecurityCap * socialSecurityRate;
+            }
+            if((medicareCap != null && taxableIncome < medicareCap) || medicareCap == null){
+                medicareWithheld = taxableIncome * medicareRate;
+            }
+            else if(medicareCap != null && taxableIncome >= medicareCap){
+                medicareWithheld = medicareCap * medicareRate;
+            }
+            System.debug('Taxable Income ' + taxableIncome);
+            System.debug('Social Security Rate ' + socialSecurityRate);
+            System.debug('Medicare Rate ' + medicareRate);
             Decimal fedTaxWithheld = 0;
             Decimal remainingSalary = annualSalary;
             Decimal amountTaxed = 0;
