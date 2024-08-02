@@ -29,7 +29,12 @@ private class InterviewReminderTest {
         Integer invocations = Limits.getEmailInvocations();
         Test.stopTest();
 
-        System.assert(invocations > 0, 'No emails were sent');
+        String formatedDate = Datetime.now().format('EEEE');
+        if (formatedDate == 'Friday' || formatedDate == 'Saturaday') {
+            System.assert(invocations == 0, 'Interviews should not be scheduled on Saturday or Sundays');
+        } else {
+            System.assert(invocations > 0, 'No emails were sent');
+        }
     }
 
     @IsTest
@@ -69,8 +74,13 @@ private class InterviewReminderTest {
         List<Event> interviews = InterviewReminder.getScheduledInterviews();
         Test.stopTest();
 
-        System.assertEquals(scheduledInterviews.size() - 1, interviews.size(), 'Get Scheduled Interviews did not return all interviews');
-        System.assertEquals(false, interviews.contains(notJA), 'Get Scheduled Interviews returned an interview not related to a Job Application');
+        String formatedDate = Datetime.now().format('EEEE');
+        if (formatedDate == 'Friday' || formatedDate == 'Saturaday') {
+            System.assertEquals(0, interviews.size(), 'Interviews should not be scheduled on a Saturday or Sunday');
+        } else {
+            System.assertEquals(scheduledInterviews.size() - 1, interviews.size(), 'Get Scheduled Interviews did not return all interviews');
+            System.assertEquals(false, interviews.contains(notJA), 'Get Scheduled Interviews returned an interview not related to a Job Application');
+        }
     }
 
     @IsTest
