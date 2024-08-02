@@ -176,10 +176,12 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             if((medicareCap != null && taxableIncome < medicareCap) || medicareCap == null){
                 medicareWithheld = taxableIncome * medicareRate;
             }
-            //Can uncomment lines 183-185 if needed. Accounts for cap on Medicare taxes, which currently don't exist
-            // else if(medicareCap != null && taxableIncome >= medicareCap){
-            //     medicareWithheld = medicareCap * medicareRate;
-            // }
+            /**
+             * Can these if needed. Accounts for cap on Medicare taxes, which currently don't exist
+            else if(medicareCap != null && taxableIncome >= medicareCap){
+                medicareWithheld = medicareCap * medicareRate;
+            }
+            **/
             Decimal fedTaxWithheld = 0;
             Decimal remainingSalary = annualSalary;
             Decimal amountTaxed = 0;
