@@ -1,11 +1,17 @@
-@IsTest
+/**
+ * @description       : Test class for HiringTeamHandler
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/@IsTest
 public with sharing class HiringTeamHandlerTest {
     @TestSetup
     static void createData(){
         List<Account> newAccounts = new List<Account>();
         for(Integer i = 0; i < 10; i++){
-           Account newAcc = new Account (Name = 'Test Account ' + i);
-           newAccounts.add(newAcc);
+            Account newAcc = new Account (Name = 'Test Account ' + i);
+            newAccounts.add(newAcc);
         }
         insert newAccounts;
 
@@ -157,7 +163,6 @@ public with sharing class HiringTeamHandlerTest {
             if(!hiringTeamByJobAppId.containsKey(teamMember.Job_Application__c)){
                 hiringTeamByJobAppId.put(teamMember.Job_Application__c,teamMember);
             }
-            System.debug(jobAppIdByAccountIdMap);
             continue;
         }
 

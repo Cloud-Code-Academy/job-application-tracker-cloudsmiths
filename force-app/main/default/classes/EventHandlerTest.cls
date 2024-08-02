@@ -1,8 +1,14 @@
+/**
+ * @description       : Test class for EventHandler
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/
 @IsTest
 public with sharing class EventHandlerTest extends TriggerHandler{
     @TestSetup
     static void createTestData(){
-
         Test.startTest();
         createUsers();
         Test.stopTest();
@@ -13,8 +19,8 @@ public with sharing class EventHandlerTest extends TriggerHandler{
             Account newacc = new Account(Name = ' Test Company ' + i,OwnerId = userList[0].Id);
             newAccounts.add(newacc);
         }
-        insert newAccounts;
         
+        insert newAccounts;
         
         List<Account> accList = [SELECT Id, Name FROM Account];
         List<Job_Application__c> newJobAppList = new List<Job_Application__c>();
@@ -30,7 +36,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
 
         Database.insert(newJobAppList,System.AccessLevel.SYSTEM_MODE);
         
-
         List<Job_Application__c> jobApps = [SELECT Id, Company__c, OwnerId FROM Job_Application__c];
         List<Event> newEvents = new List<Event>();
         List<Datetime> dateTimeList = new List<Datetime>();
@@ -55,7 +60,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
 
     @IsTest
     static void testEventValidationOverLappingEvents(){
-
         List<Job_Application__c> jobApps = [SELECT Id, Company__c, OwnerId FROM Job_Application__c];
         List<Id> jobAppIds = new List<Id>();
         for(Job_Application__c jobApp :jobApps){
@@ -77,21 +81,17 @@ public with sharing class EventHandlerTest extends TriggerHandler{
         Test.startTest();
         try{
             insert updatedEvents;
-        }
-        catch (Exception e){
+        } catch (Exception e){
             System.assert(e.getMessage().contains('Please select a new time.'),'Event inserted');
         }
-            
         Test.stopTest();
         
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
         System.assertEquals(eventCount, confirmEventCountList.size(), 'Event Count is Incorrect');
-
     }
 
     @IsTest
     static void testEventValidationNonOverLappingEvents(){
-
         List<Job_Application__c> jobApps = [SELECT Id, Company__c, OwnerId FROM Job_Application__c];
         List<Id> jobAppIds = new List<Id>();
         for(Job_Application__c jobApp :jobApps){
@@ -116,12 +116,10 @@ public with sharing class EventHandlerTest extends TriggerHandler{
         
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
         System.assertEquals(eventCount * 2, confirmEventCountList.size(), 'Event Count is Incorrect');
-
     }
 
     @IsTest
     static void testEventValidationWeekends(){
-
         List<Job_Application__c> jobApps = [SELECT Id, Company__c, OwnerId FROM Job_Application__c];
         List<Id> jobAppIds = new List<Id>();
         for(Job_Application__c jobApp :jobApps){
@@ -150,18 +148,14 @@ public with sharing class EventHandlerTest extends TriggerHandler{
         Test.startTest();
         try{
             insert newEvents;
-        }
-        catch (Exception e){
+        } catch (Exception e){
             System.assert(e.getMessage().contains('Event cannot be scheduled on a weekend.'),'Event inserted');
         }
-            
         Test.stopTest();
         
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
         System.assertEquals(eventCount, confirmEventCountList.size(), 'Event Count is Incorrect');
-
     }
-
 
     @future
     static void createUsers(){
