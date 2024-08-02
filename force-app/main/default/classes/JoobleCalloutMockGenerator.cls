@@ -1,11 +1,12 @@
 /**
- * @description       : 
+ * @description       : Generates a successful response for testing the Jooble API
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 08-01-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 global class JoobleCalloutMockGenerator implements HttpCalloutMock {
+    // Mocks a JSON response from the Jooble API
     public static String JOOBLE_JSON_JOBS_PAYLOAD = '{'
     + '"totalCount": 1676,'
     + '"jobs": ['
@@ -73,13 +74,11 @@ global class JoobleCalloutMockGenerator implements HttpCalloutMock {
 + '}';
 
     global HTTPResponse respond(HTTPRequest req) {
-		// Create a fake response
+		// Create a response
 		HttpResponse res = new HttpResponse();
 		res.setHeader('Content-Type', 'application/json');
-
-		// Check if the request is a POST request
+		// Return a success response for the POST request
 		if (req.getMethod() == 'POST') {
-			// Return a success response for the POST request
 			res.setBody(JOOBLE_JSON_JOBS_PAYLOAD);
             res.setStatusCode(200);
             res.setStatus('OK');
