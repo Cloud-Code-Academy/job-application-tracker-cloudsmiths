@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-27-2024
+ * @last modified on  : 08-01-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
@@ -168,6 +168,17 @@ public class TestDataFactory {
                 e.Interview_Format__c = 'On-Site';
                 e.StartDateTime = DateTime.now().addDays(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
+            }
+
+            // Prevent Interviews on weekends.
+            String eventStartDay = e.StartDateTime.format('EEEE');
+            String eventEndDay = e.EndDateTime.format('EEEE');
+            if(eventStartDay == 'Saturday' || eventEndDay == 'Saturday'){
+                e.StartDateTime = e.StartDateTime.addDays(2);
+                e.EndDateTime = e.EndDateTime.addDays(2);
+            } else if(eventStartDay == 'Sunday' || eventEndDay == 'Sunday'){
+                e.StartDateTime = e.StartDateTime.addDays(1);
+                e.EndDateTime = e.EndDateTime.addDays(1);
             }
             interviews.add(e);
         }
