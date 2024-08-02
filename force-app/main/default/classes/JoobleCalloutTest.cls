@@ -1,13 +1,12 @@
 /**
- * @description       : 
+ * @description       : Tests for the JoobleCallout Class
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 08-01-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
 private class JoobleCalloutTest {
-
     @IsTest
     static void getJobsFromJoobleTest(){
         // Create existing Job Application record to assert on upsert logic
@@ -30,8 +29,11 @@ private class JoobleCalloutTest {
         Test.stopTest();
 
         //Query the records created by the callout mock and JoobleCalout
-        List<Job_Application__c> newJobs = [SELECT Id, Salary_Type__c FROM Job_Application__c];
-        List<Job_Application__c> existingJobAfter = [SELECT Id, Salary_Type__c, Description__c FROM Job_Application__c WHERE Jooble_Id__c = '4352497110792274330'];
+        List<Job_Application__c> newJobs = [SELECT Id, Salary_Type__c FROM Job_Application__c WITH SYSTEM_MODE];
+        List<Job_Application__c> existingJobAfter = [SELECT Id, Salary_Type__c, Description__c 
+                                                        FROM Job_Application__c
+                                                        WHERE Jooble_Id__c = '4352497110792274330'
+                                                        WITH SYSTEM_MODE];
 
         // Check that the Salary Type logic is working
         Integer annual = 0;
@@ -100,7 +102,7 @@ private class JoobleCalloutTest {
         Test.stopTest();
 
         //Query the records created by the callout mock and JoobleCalout
-        List<Job_Application__c> newJobs = [SELECT Id, Salary_Type__c FROM Job_Application__c];
+        List<Job_Application__c> newJobs = [SELECT Id, Salary_Type__c FROM Job_Application__c WITH SYSTEM_MODE];
 
         // Check that the Salary Type logic is working
         Integer annual = 0;

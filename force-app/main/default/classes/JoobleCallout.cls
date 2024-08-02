@@ -1,7 +1,7 @@
 /**
- * @description       : 
+ * @description       : This class calls out to the Jooble API
  * @author            : Riley Meyer
- * @group             : 
+ * @group             : Cloud Smiths
  * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
