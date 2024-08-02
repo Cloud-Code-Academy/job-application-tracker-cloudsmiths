@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Salary_Type__c</fullName>
-    <label>Salary Type</label>
+    <fullName>Deduction_Type__c</fullName>
+    <label>Deduction Type</label>
     <required>false</required>
     <trackHistory>false</trackHistory>
     <trackTrending>false</trackTrending>
@@ -11,19 +11,19 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Annual</fullName>
+                <fullName>None</fullName>
                 <default>true</default>
-                <label>Annual</label>
+                <label>None</label>
             </value>
             <value>
-                <fullName>Hourly</fullName>
+                <fullName>Standard Deduction</fullName>
                 <default>false</default>
-                <label>Hourly</label>
+                <label>Standard Deduction</label>
             </value>
             <value>
-                <fullName>Weekly</fullName>
+                <fullName>Itemized Deduction</fullName>
                 <default>false</default>
-                <label>Weekly</label>
+                <label>Itemized Deduction</label>
             </value>
         </valueSetDefinition>
     </valueSet>
