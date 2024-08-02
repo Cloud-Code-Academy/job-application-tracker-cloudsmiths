@@ -2,11 +2,10 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 08-01-2024
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class JoobleCallout {
-
     // Wrapper Class for the ResponseResults
     public class ResponseResult {
         public Integer totalCount;
@@ -57,7 +56,8 @@ public with sharing class JoobleCallout {
             request.setHeader('Content-Type', callHeader.get('Content-Type'));
             request.setBody(callBody);
 
-            Integer numAttempts = 3; // Maximum number of retry attempts
+            // Maximum number of retry attempts
+            Integer numAttempts = 3;
             while (numAttempts > 0) {
                 try {
                     // Send the HTTP request and get the response
@@ -99,10 +99,10 @@ public with sharing class JoobleCallout {
             }
         }
 
-        // Create all the Job_Application__c records for upsert
+        // Create all the Job Application records for upsert
         List<Job_Application__c> newJobs = createJobsFromJSON(callResults);
 
-        // Upsert the Job_Application__c records matching on the Jooble_Id__c
+        // Upsert the Job Application records matching on the Jooble_Id__c
         Schema.SObjectField ftoken = Job_Application__c.Fields.Jooble_Id__c;
         Database.upsert(newJobs, ftoken, AccessLevel.SYSTEM_MODE);
     }
@@ -219,7 +219,7 @@ public with sharing class JoobleCallout {
                                             WHERE Name IN :companyNames
                                             WITH SYSTEM_MODE];
 
-        // look through each unique Company Name returned from Jooble to determine if it exists already
+        // Look through each unique Company Name returned from Jooble to determine if it exists already
         for (String companyName : companyNames) {
             Boolean accountExists = false;
             for (Account a : existingAccounts) {
@@ -247,5 +247,4 @@ public with sharing class JoobleCallout {
 
         return companyNameToAccount;
     }
-
 }
