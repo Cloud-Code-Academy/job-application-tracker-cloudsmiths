@@ -169,21 +169,14 @@ public class TestDataFactory {
                 e.StartDateTime = DateTime.now().addDays(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             }
-
-            // Prevent Interviews on weekends.
-            String eventStartDay = e.StartDateTime.format('EEEE');
-            String eventEndDay = e.EndDateTime.format('EEEE');
-            if(eventStartDay == 'Saturday' || eventEndDay == 'Saturday'){
-                e.StartDateTime = e.StartDateTime.addDays(2);
-                e.EndDateTime = e.EndDateTime.addDays(2);
-            } else if(eventStartDay == 'Sunday' || eventEndDay == 'Sunday'){
-                e.StartDateTime = e.StartDateTime.addDays(1);
-                e.EndDateTime = e.EndDateTime.addDays(1);
-            }
             interviews.add(e);
         }
 
+        // We have to bypass the EventHandler that prevents Interviews on weekends
+        // This ensures that we can always test the InterviewReminder class no matter the day of the week
+        TriggerHandler.bypass('EventHandler');
         Database.insert(interviews, AccessLevel.SYSTEM_MODE);
+        TriggerHandler.clearAllBypasses();
 
         return interviews;
     }

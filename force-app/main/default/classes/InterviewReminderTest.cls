@@ -6,7 +6,7 @@
  * @last modified by  : Riley Meyer
 **/
 @IsTest
-private class InterviewReminderTest {
+private class InterviewReminderTest extends TriggerHandler {
     @TestSetup
     static void makeData(){
         Integer numRecords = 400;
@@ -29,12 +29,7 @@ private class InterviewReminderTest {
         Integer invocations = Limits.getEmailInvocations();
         Test.stopTest();
 
-        String formatedDate = Datetime.now().format('EEEE');
-        if (formatedDate == 'Friday' || formatedDate == 'Saturaday') {
-            System.assert(invocations == 0, 'Interviews should not be scheduled on Saturday or Sundays');
-        } else {
-            System.assert(invocations > 0, 'No emails were sent');
-        }
+        System.assert(invocations > 0, 'No emails were sent');
     }
 
     @IsTest
@@ -54,16 +49,9 @@ private class InterviewReminderTest {
         notJA.Interview_Format__c = 'Phone';
         notJA.StartDateTime = System.now().addDays(1);
         notJA.EndDateTime = notJA.StartDateTime.addHours(1);
-        String eventStartDay = notJA.StartDateTime.format('EEEE');
-        String eventEndDay = notJA.EndDateTime.format('EEEE');
-        if(eventStartDay == 'Saturday' || eventEndDay == 'Saturday'){
-            notJA.StartDateTime = notJA.StartDateTime.addDays(2);
-            notJA.EndDateTime = notJA.EndDateTime.addDays(2);
-        } else if(eventStartDay == 'Sunday' || eventEndDay == 'Sunday'){
-            notJA.StartDateTime = notJA.StartDateTime.addDays(1);
-            notJA.EndDateTime = notJA.EndDateTime.addDays(1);
-        }
+        TriggerHandler.bypass('EventHandler');
         Database.insert(notJA, AccessLevel.SYSTEM_MODE);
+        TriggerHandler.clearAllBypasses();
 
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
@@ -74,13 +62,8 @@ private class InterviewReminderTest {
         List<Event> interviews = InterviewReminder.getScheduledInterviews();
         Test.stopTest();
 
-        String formatedDate = Datetime.now().format('EEEE');
-        if (formatedDate == 'Friday' || formatedDate == 'Saturaday') {
-            System.assertEquals(0, interviews.size(), 'Interviews should not be scheduled on a Saturday or Sunday');
-        } else {
-            System.assertEquals(scheduledInterviews.size() - 1, interviews.size(), 'Get Scheduled Interviews did not return all interviews');
-            System.assertEquals(false, interviews.contains(notJA), 'Get Scheduled Interviews returned an interview not related to a Job Application');
-        }
+        System.assertEquals(scheduledInterviews.size() - 1, interviews.size(), 'Get Scheduled Interviews did not return all interviews');
+        System.assertEquals(false, interviews.contains(notJA), 'Get Scheduled Interviews returned an interview not related to a Job Application');
     }
 
     @IsTest
