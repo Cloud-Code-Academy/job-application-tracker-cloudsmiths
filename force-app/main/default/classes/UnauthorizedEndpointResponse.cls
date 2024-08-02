@@ -1,8 +1,8 @@
 /**
- * @description       : 
+ * @description       : Mocks an exception being thrown during the callout to the Jooble API
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 08-01-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 global class UnauthorizedEndpointResponse implements HttpCalloutMock{
