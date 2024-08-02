@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-27-2024
+ * @last modified on  : 08-01-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class InterviewReminder implements Schedulable {
@@ -97,6 +97,7 @@ public with sharing class InterviewReminder implements Schedulable {
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
                                             WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+        List<Integer> indexesToRemove = new List<Integer>();
 
         // Remove Events not related to Job_Application__C reocrds
         for (Event interview : scheduledInterviews) {
@@ -104,8 +105,13 @@ public with sharing class InterviewReminder implements Schedulable {
             Boolean jobApplicationRecord = myId.getSObjectType() == Job_Application__c.getSObjectType();
             if (!jobApplicationRecord) {
                 Integer index = scheduledInterviews.indexOf(interview);
-                scheduledInterviews.remove(index);
+                indexesToRemove.add(index);
             }
+        }
+
+        // Cannot remove the indexed values when looping through the scheduledInterviews list, so we need to create a new list of indexes that we will remove
+        for (Integer index :indexesToRemove) {
+            scheduledInterviews.remove(index);
         }
 
         return scheduledInterviews;

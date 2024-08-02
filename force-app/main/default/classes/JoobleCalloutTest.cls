@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-30-2024
+ * @last modified on  : 08-01-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
@@ -59,6 +59,27 @@ private class JoobleCalloutTest {
         System.assertEquals('Annual', existingJobAfter[0].Salary_Type__c, 'Salary Type field was not populated on upsert');
         System.assertEquals('DO NOT OVERWRITE THIS FIELD', existingJobAfter[0].Description__c, 'Description field should not be overwritten when already populated');
     }
+
+    @IsTest
+    static void getJobsFromJoobleExceptionTest(){
+        CreateJoobleCalloutBodyAction.FlowInput body = new CreateJoobleCalloutBodyAction.FlowInput();
+        body.keywords = 'Salesforce Developer';
+        body.location = 'Omaha, NE';
+        body.salary = '100000';
+        body.dateCreatedFrom = '2024-07-01';
+
+        // Set the mock callout class
+		Test.setMock(HttpCalloutMock.class, new UnauthorizedEndpointResponse());
+
+        Test.startTest();
+        try{
+            JoobleCallout.getJobsFromJooble(body);
+        } catch (Exception e){
+            System.assertEquals('Unauthorized endpoint, please check Setup->Security->Remote site settings.', e.getMessage(), 'Exception was not thrown as expected');
+        }
+        Test.stopTest();
+    }
+
 
     @IsTest
     static void createJoobleCalloutBody(){

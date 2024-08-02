@@ -2,10 +2,10 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 07-28-2024
+ * @last modified on  : 08-01-2024
  * @last modified by  : Riley Meyer
 **/
-public with sharing class JoobleCalloutMockGenerator implements HttpCalloutMock {
+global class JoobleCalloutMockGenerator implements HttpCalloutMock {
     public static String JOOBLE_JSON_JOBS_PAYLOAD = '{'
     + '"totalCount": 1676,'
     + '"jobs": ['
@@ -72,7 +72,7 @@ public with sharing class JoobleCalloutMockGenerator implements HttpCalloutMock 
     + ']'
 + '}';
 
-    public HTTPResponse respond(HTTPRequest req) {
+    global HTTPResponse respond(HTTPRequest req) {
 		// Create a fake response
 		HttpResponse res = new HttpResponse();
 		res.setHeader('Content-Type', 'application/json');
@@ -81,8 +81,9 @@ public with sharing class JoobleCalloutMockGenerator implements HttpCalloutMock 
 		if (req.getMethod() == 'POST') {
 			// Return a success response for the POST request
 			res.setBody(JOOBLE_JSON_JOBS_PAYLOAD);
+            res.setStatusCode(200);
+            res.setStatus('OK');
 		}
-		res.setStatusCode(200);
 		return res;
 	}
 }
