@@ -14,7 +14,6 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
 
     //Setting variables with values from trigger
     public JobApplicationHandler() {
-
         this.newJobApplications = (List<Job_Application__c>) Trigger.new;
         this.oldJobApplications = (List<Job_Application__c>) Trigger.old;
         this.newJobApplicationMap = (Map<Id, Job_Application__c> ) Trigger.newMap;
