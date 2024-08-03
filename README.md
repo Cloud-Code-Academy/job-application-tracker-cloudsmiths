@@ -1,18 +1,43 @@
-# Salesforce DX Project: Next Steps
+# HOW TO GRANT ACCESS TO THE JOB APPLICATION APP
+The 'Job Application Permission Set' provides Users with access to the Job Application app once installed.
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+Named credentials are used to store the endpoint and the Access Token for the JoobleAPI which users are granted access to via this Permission Set.
 
-## How Do You Plan to Deploy Your Changes?
+# SEARCHING FOR JOBS
+The Jooble Search Flow is installed as a part of the package and is added to the Job Application app Homepage. This Flow calls the CreateJoobleCalloutBodyAction invocable method which then makes the call to Jooble to retrieve Job Application records.
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+You can filter on the following:
 
-## Configure Your Salesforce DX Project
+- Keywords (searched in the job title and description)
+- Location
+- Salary (minimum salary)
+- Date Created From (jobs created after this date)
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
 
-## Read All About It
+# INTERVIEW REMINDER
+The InterviewReminder class is used to remind Interviewees via email the day before an interview is scheduled.
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+It is  recommended that you schedule this class to run nightly at 1 A.M.
+
+You can run these lines of code in Developer Console > Apex Anonymous to schedule this Class to run nightly at 1 A.M.
+ 
+InterviewReminder i = new InterviewReminder();<br/>
+String sch = '0 0 1 * * ?';<br/>
+String jobID = System.schedule('Interview Reminder', sch, i);<br/>
+System.debug(jobID);<br/>
+
+
+# STALE JOB APPLICATION CLEANUP
+The StaleJobApplicationProcess class is used to cleanup stale Job Application records in the system. A Job Application is considered stale if one of the two following criteria are met:
+
+1. The Status is not equal to 'Closed' or 'Accepted' and the Follow Up Date is more than 30 days ago.
+2. The Status is not equal to 'Closed' or 'Accepted' and the Follow Up Date is null and the Created Date is more than 30 days ago.
+
+It is  recommended that you schedule this class to run nightly at 1 A.M.
+
+You can run these lines of code in Developer Console > Apex Anonymous to schedule this Class to run nightly at 1 A.M.
+
+StaleJobApplicationProcess i = new StaleJobApplicationProcess();<br/>
+String sch = '0 0 1 * * ?';<br/>
+String jobID = System.schedule('Stale JobApp Process', sch, i);<br/>
+System.debug(jobID);<br/>
