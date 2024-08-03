@@ -71,7 +71,7 @@ private class JoobleCalloutTest {
         body.dateCreatedFrom = '2024-07-01';
 
         // Set the mock callout class
-		Test.setMock(HttpCalloutMock.class, new UnauthorizedEndpointResponse());
+		Test.setMock(HttpCalloutMock.class, new UnauthorizedEndpointResponseMock());
 
         Test.startTest();
         try{
