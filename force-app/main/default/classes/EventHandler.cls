@@ -91,6 +91,12 @@ public with sharing class EventHandler extends TriggerHandler{
         * and end times
         **/
         for(Event eachEvent :newEvent){
+            Id relatedId = eachEvent.WhatId;
+            Boolean isJobApp = relatedId.getSobjectType() ==Job_Application__c.getSobjectType();
+            if(!isJobApp){
+                continue;
+                }
+
             Boolean startConflict = false;
             Boolean endConflict = false;
             String standardStartTime = '';

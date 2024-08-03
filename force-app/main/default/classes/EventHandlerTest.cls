@@ -42,7 +42,6 @@ public with sharing class EventHandlerTest extends TriggerHandler{
         dateTimeList.add(Datetime.newInstance(2024,7,23,10,0,0));
         dateTimeList.add(Datetime.newInstance(2024,7,24,14,0,0));
         dateTimeList.add(Datetime.newInstance(2024,7,25,15,0,0));
-
         for(Integer i = 0; i < jobApps.size(); i++){
             Event e = new Event();
             e.WhatId = jobApps[i].Id;
@@ -156,6 +155,36 @@ public with sharing class EventHandlerTest extends TriggerHandler{
         List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
         System.assertEquals(eventCount, confirmEventCountList.size(), 'Event Count is Incorrect');
     }
+
+    @IsTest
+    static void testSkipNonJobAppEventsOverlapping(){
+        List<Job_Application__c> jobApps = [SELECT Id, Company__c, OwnerId FROM Job_Application__c];
+        List<Id> jobAppIds = new List<Id>();
+        for(Job_Application__c jobApp :jobApps){
+            jobAppIds.add(jobApp.Id);
+        }
+        Account acc = [SELECT Id, Name FROM Account LIMIT 1];
+        List<Event> updatedEvents = new List<Event>();
+        List<Event> existingEvents = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
+        for(Event e :existingEvents){
+            Event ev = new Event();
+            ev.Subject = 'Call';
+            ev.WhatId = acc.Id;
+            ev.StartDateTime = e.StartDateTime.addMinutes(30);
+            ev.EndDateTime = e.EndDateTime.addMinutes(30);
+            ev.OwnerId = e.OwnerId;
+            updatedEvents.add(ev);
+        }
+        Integer eventCount = existingEvents.size();
+        
+        Test.startTest();
+        insert updatedEvents;
+        Test.stopTest();
+        
+        List<Event> confirmEventCountList = [SELECT Id, Subject, WhatId, StartDateTime, EndDateTime, OwnerId FROM Event WHERE WhatId IN :jobAppIds];
+        System.assertEquals(eventCount, confirmEventCountList.size(), 'Event Count is Incorrect');
+    }
+    
 
     @future
     static void createUsers(){
