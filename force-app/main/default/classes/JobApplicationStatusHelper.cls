@@ -11,11 +11,8 @@ public with sharing class JobApplicationStatusHelper {
     private static List<Task> tasksToBeCreated = new List<Task>();
 
     public static void tasksBasedOnStatus(List<Job_Application__c> newJobApplications, Map<Id, Job_Application__c> oldJobApplicationsMap){
-
-        System.debug('Trigger Operation:::: ' + Trigger.operationType.name());
         //Clearing the static list to avoid retaining tasks from previous transactions
         tasksToBeCreated.clear();
-
         //Looping over all the Job Application records that are passed through After Update Trigger Context
         for(Job_Application__c jobApp : newJobApplications){
             if(Trigger.operationType.name() == 'AFTER_INSERT' || (Trigger.operationType.name() == 'AFTER_UPDATE' && jobApp.Status__c != oldJobApplicationsMap.get(jobApp.Id).Status__c)){

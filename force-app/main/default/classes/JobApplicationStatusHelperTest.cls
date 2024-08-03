@@ -22,7 +22,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Applying'
             if(i >= 5 && i < 10) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applying',
@@ -30,7 +29,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Applied'
             if(i >= 10 && i < 15) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Applied',
@@ -38,7 +36,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Interviewing'
             if(i >= 15 && i < 20) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Interviewing',
@@ -46,7 +43,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Negotiating'
             if(i >= 20 && i < 25) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Negotiating',
@@ -54,7 +50,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Accepted'
             if(i >= 25 && i < 30) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Accepted',
@@ -62,7 +57,6 @@ public with sharing class JobApplicationStatusHelperTest {
                                                                     Salary__c = 100000);
                 jobApplications.add(jobApp);
             }
-
              //Job Application with Status = 'Closed'
             if(i >= 30 && i < 35) {
                 Job_Application__c jobApp = new Job_Application__c (Status__c = 'Closed',
@@ -75,8 +69,6 @@ public with sharing class JobApplicationStatusHelperTest {
         Test.startTest();
         Database.insert(jobApplications);
         Test.stopTest();
-
-        List<Job_Application__c> insertedJobApps = [SELECT Id,Status__c, Position_Title__c, Salary__c FROM Job_Application__c ];
 
         //Assertion of Task records for each Status
         //Asserting if the Tasks are inserted as expected when Job Application is created with Status = Saved
@@ -145,11 +137,10 @@ public with sharing class JobApplicationStatusHelperTest {
             Database.insert(jobApps);
         }
 
-        List<Job_Application__c> jobApplications = [SELECT Id,Name, Status__c, Position_Title__c, Salary__c FROM Job_Application__c ];
         //Update the Job Application record Status 
         List<Job_Application__c> jobAppsToBeUpdated = new List<Job_Application__c>();
 
-        for(Job_Application__c jobApp : jobApplications){
+        for(Job_Application__c jobApp : [SELECT Id,Name, Status__c, Position_Title__c, Salary__c FROM Job_Application__c]){
             if(Integer.valueOf(jobApp.Position_Title__c.substringAfter('Dev ')) < 25){
                 jobApp.Status__c = 'Interviewing';
                 jobAppsToBeUpdated.add(jobApp);
