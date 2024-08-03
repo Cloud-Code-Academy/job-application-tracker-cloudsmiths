@@ -1,12 +1,17 @@
+/**
+ * @description       : Handler to trigger validation of interviews
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/
 public with sharing class EventHandler extends TriggerHandler{
-    
     private List<Event> newEvent;
     private List<Event> oldEvent;
     private Map<Id,Event> newEventMap;
     private Map<Id,Event> oldEventMap;
 
     public EventHandler() {
-
         this.newEvent = (List<Event>) Trigger.new;
         this.oldEvent = (List<Event>) Trigger.old;
         this.newEventMap = (Map<Id,Event>) Trigger.newMap;
@@ -86,6 +91,12 @@ public with sharing class EventHandler extends TriggerHandler{
         * and end times
         **/
         for(Event eachEvent :newEvent){
+            Id relatedId = eachEvent.WhatId;
+            Boolean isJobApp = relatedId.getSobjectType() ==Job_Application__c.getSobjectType();
+            if(!isJobApp){
+                continue;
+                }
+
             Boolean startConflict = false;
             Boolean endConflict = false;
             String standardStartTime = '';

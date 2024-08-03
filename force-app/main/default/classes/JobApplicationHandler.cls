@@ -1,5 +1,11 @@
+/**
+ * @description       : Handler for Job Application trigger
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/
 public with sharing class JobApplicationHandler extends TriggerHandler {
-
     //Initialize variables 
     private List<Job_Application__c> newJobApplications;
     private List<Job_Application__c> oldJobApplications;
@@ -8,7 +14,6 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
 
     //Setting variables with values from trigger
     public JobApplicationHandler() {
-
         this.newJobApplications = (List<Job_Application__c>) Trigger.new;
         this.oldJobApplications = (List<Job_Application__c>) Trigger.old;
         this.newJobApplicationMap = (Map<Id, Job_Application__c> ) Trigger.newMap;
@@ -19,7 +24,6 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
         setPrimaryContact(newJobApplications);
         taxWithholdingCalculator(newJobApplications);
         deductionUpdatesAndValidations(newJobApplications);
-
     }
 
     public override void afterInsert(){
@@ -101,7 +105,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                 filingStatus.add(jobApp.Tax_Filing_Status__c);
             }
         }
-        //Get Tax rate data, set rate variables, initialize and populate map of Standard Deductions
+        //Get Tax rate data, set rate variables, initialize, and populate map of Standard Deductions
         List<Tax_Withholding__mdt> taxMetadata = [SELECT Id, Tax_Rate__c, Type__c, Filing_Status__c, Minimum_Amount__c, Maximum_Amount__c 
                                                 FROM Tax_Withholding__mdt
                                                 Order By Tax_Rate__c ASC];
@@ -124,6 +128,12 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             }
         }
     
+        //Create and assign new variables for calculations 
+        Decimal federalTaxRate = 0;
+        Decimal medicareTaxRate = 0;
+        Decimal standardDeductions = 0;
+        Decimal salaryAmount = 0;
+        Decimal federalTaxWithheld = 0;
         Decimal socialSecurityRate = socialSecurityRateRecord.Tax_Rate__c / 100;
         Decimal socialSecurityCap = socialSecurityRateRecord.Maximum_Amount__c;
         Decimal medicareRate = medicareRateRecord.Tax_Rate__c / 100;
@@ -143,8 +153,9 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
             }
         }
 
+        //Iterate through Job Applictions and perform calculations
         for(Job_Application__c jobApp :newJobApplications){
-            
+            //If Tax Filing Status, or Salary is null or Salary is 0, set withholding fields to 0
             if(jobApp.Tax_Filing_Status__c == null || jobApp.Salary__c == null || jobApp.Salary__c == 0){
                 jobApp.Federal_Income_Tax_Withheld__c = 0;
                 jobApp.Medicare_Withheld__c = 0;
@@ -152,12 +163,13 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                 jobApp.Take_Home_Amount__c = 0;
                 continue;
             }
-            
+            //Create and assign additional variables for calculations
             Integer monthsInYear = 12;
             Decimal taxableIncome = 0;
             Decimal socialSecurityWithheld = 0;
             Decimal medicareWithheld = 0;
             Decimal annualSalary = annualSalaryCalculator(jobApp);
+            //Calculate taxable income based on deductions and calculate Social Security and Medicare withholdings
             if(jobApp.Deduction_Type__c == 'Standard Deduction' && standardDeductionByFilingStatusMap.containsKey(jobApp.Tax_Filing_Status__c)){
                 taxableIncome = annualSalary - standardDeductionByFilingStatusMap.get(jobApp.Tax_Filing_Status__c);
             }
@@ -177,14 +189,16 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                 medicareWithheld = taxableIncome * medicareRate;
             }
             /**
-             * Can these if needed. Accounts for cap on Medicare taxes, which currently don't exist
+             * Can uncomment if needed. Accounts for cap on Medicare taxes, which currently don't exist
             else if(medicareCap != null && taxableIncome >= medicareCap){
                 medicareWithheld = medicareCap * medicareRate;
             }
             **/
+            //Assign variables for calculations
             Decimal fedTaxWithheld = 0;
             Decimal remainingSalary = annualSalary;
             Decimal amountTaxed = 0;
+            //Iterate over tax rates from metadata and compare to calculate variables to determine taxes withheld
             for(Tax_Withholding__mdt taxRate :federalTaxRates){
                 Decimal rate = taxRate.Tax_Rate__c / 100;
                 if(taxRate.Filing_Status__c == jobApp.Tax_Filing_Status__c && taxableIncome != null && taxableIncome >= taxRate.Minimum_Amount__c && taxableIncome <= taxRate.Maximum_Amount__c && taxRate.Maximum_Amount__c != null && (taxableIncome - amountTaxed) > 0){
@@ -203,6 +217,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
                     amountTaxed = remainingSalary - fedTaxWithheld;
                 }
             }
+            //Assign fields on the job application to calculated values
             jobApp.Federal_Income_Tax_Withheld__c = fedTaxWithheld;
             jobApp.Medicare_Withheld__c = medicareWithheld;
             jobApp.Social_Security_Withheld__c = socialSecurityWithheld;
@@ -218,6 +233,7 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
     }
 
     public static Decimal annualSalaryCalculator(Job_Application__c jobApp){
+        //Method used to convert hourly or weekly salary to annual amount
         Decimal annualSalary = 0;
         Integer weeklyHours = 40;
         Integer weeksInYear = 52;
@@ -236,19 +252,24 @@ public with sharing class JobApplicationHandler extends TriggerHandler {
 
     public static void deductionUpdatesAndValidations(List<Job_Application__c> newJobApplicationMap){
         for(Job_Application__c jobApp :newJobApplicationMap){
+            //Sets Itemized Deduction Amount to null if Deduction Type is Standard Deduction
             if(jobApp.Deduction_Type__c == 'Standard Deduction' && jobApp.Itemized_Deduction_Amount__c != null){
                 jobApp.Itemized_Deduction_Amount__c = null;
             }
+            //Sets Standard Deduction to null if Deduction Type is Itemized Deduction
             if(jobApp.Deduction_Type__c == 'Itemized Deduction' && jobApp.Standard_Deduction__c != null){
                 jobApp.Standard_Deduction__c = null;
             }
+            //Sets both Standard and Itemized Deduction Amount to null if Deduction Type is null
             if((jobApp.Deduction_Type__c == null || jobApp.Deduction_Type__c == 'None') && (jobApp.Standard_Deduction__c != null || jobApp.Itemized_Deduction_Amount__c != null)){
                 jobApp.Standard_Deduction__c = null;
                 jobApp.Itemized_Deduction_Amount__c = null;
             }
+            //Validation to ensure Itemized Deduction Amount is populated if Deduction Type is Itemized Deduction
             if(jobApp.Deduction_Type__c == 'Itemized Deduction' && jobApp.Itemized_Deduction_Amount__c == null){
                 jobApp.addError('If Itemized Deduction is selected, the Itemized Deduction Amount must be provided');
             }
+            //Validation to ensure Salary is positive
             if(jobApp.Salary__c < 0){
                 jobApp.addError('You cannot enter a negative salary');
             }

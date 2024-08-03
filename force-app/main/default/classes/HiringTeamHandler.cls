@@ -1,5 +1,11 @@
+/**
+ * @description       : Handler class for the Hiring Team object trigger
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/
 public with sharing class HiringTeamHandler extends TriggerHandler{
-
     //Initialize variables    
     private List<Hiring_Team__c> newHiringTeam;
     private List<Hiring_Team__c> oldHiringTeam;
@@ -8,14 +14,12 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
     
     //Setting variables with values from trigger
     public HiringTeamHandler() {
-
         this.newHiringTeam = (List<Hiring_Team__c>) Trigger.new;
         this.oldHiringTeam = (List<Hiring_Team__c>) Trigger.old;
         this.newHiringTeamMap = (Map<Id, Hiring_Team__c>) Trigger.newMap;
         this.oldHiringTeamMap = (Map<Id, Hiring_Team__c>) Trigger.oldMap;
     }
 
-    
     public override void afterInsert(){
         List<Job_Application__c> jobAppsToUpdate = setApplicationPrimaryContact(newHiringTeam);
         List<Hiring_Team__c> hiringTeamsToUpdate = updatePreviousPrimaryContact(newHiringTeam);
@@ -98,6 +102,5 @@ public with sharing class HiringTeamHandler extends TriggerHandler{
         }
         //Return list
         return existingHiringTeamList;
-    
     }
 }

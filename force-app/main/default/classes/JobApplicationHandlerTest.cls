@@ -1,3 +1,10 @@
+/**
+ * @description       : Test class for JobApplicationHandler
+ * @author            : Tyler Riden
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-01-2024
+ * @last modified by  : Tyler Riden
+**/
 @IsTest
 public with sharing class JobApplicationHandlerTest {
     @TestSetup
@@ -36,7 +43,6 @@ public with sharing class JobApplicationHandlerTest {
             }
         }
         insert newContacts;
-
     }
 
     @IsTest
@@ -91,9 +97,6 @@ public with sharing class JobApplicationHandlerTest {
             newJobApps.add(jobApp);
         }
         
-        
-        
-
         Test.startTest();
         insert newJobApps;
         Test.stopTest();
@@ -115,7 +118,6 @@ public with sharing class JobApplicationHandlerTest {
 
     @IsTest
     static void testTaxWithholdingCalculator(){
-    
         List<Job_Application__c> jobAppList = new List<Job_Application__c>();
         Job_Application__c newJobApp1 = new Job_Application__c (Salary__c = 10000, Salary_Type__c = 'Annual', Tax_Filing_Status__c = 'Single', Deduction_Type__c = 'None');
         jobAppList.add(newJobApp1);
@@ -269,13 +271,9 @@ public with sharing class JobApplicationHandlerTest {
                 System.assertEquals(0, jobApp.Federal_Income_Tax_Withheld__c, 'Federal Income Tax Should be 0');
                 System.assertEquals(0, jobApp.Social_Security_Withheld__c, 'Social Security Should be 0');
                 System.assertEquals(0, jobApp.Medicare_Withheld__c, 'Medicare Should be 0');
-                
             }
-
         }
     }
-        
-
 
     @IsTest
     static void testdeductionUpdates(){
@@ -329,8 +327,5 @@ public with sharing class JobApplicationHandlerTest {
         } catch(Exception e){
             System.assert(e.getMessage().contains('You cannot enter a negative salary'),'Incorrect Error Message' );
         }
-
-
-
     }
 }
