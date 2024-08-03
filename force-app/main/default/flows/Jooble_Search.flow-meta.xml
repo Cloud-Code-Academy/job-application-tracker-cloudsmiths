@@ -109,13 +109,16 @@
             </defaultValue>
             <fieldText>Salary</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>&lt;p&gt;Minimum salary for the job search.&lt;/p&gt;</helpText>
+            <helpText>&lt;p&gt;Minimum salary for the job search.&lt;/p&gt;&lt;p&gt;Whole numbers only without commas, dollar signs, or decimals.&lt;/p&gt;</helpText>
             <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>true</isRequired>
             <validationRule>
-                <errorMessage>&lt;pre class=&quot;ql-syntax&quot; spellcheck=&quot;false&quot;&gt;You can only enter numbers no letters, commas, dollar signs or special characters.
+                <errorMessage>&lt;pre class=&quot;ql-syntax&quot; spellcheck=&quot;false&quot;&gt;You can only enter numbers no letters, commas, decimals, dollar signs or special characters.
 &lt;/pre&gt;</errorMessage>
-                <formulaExpression>ISNUMBER({!Salary})</formulaExpression>
+                <formulaExpression>AND (
+ISNUMBER({!Salary}),
+NOT(CONTAINS({!Salary}, &apos;.&apos;))
+)</formulaExpression>
             </validationRule>
         </fields>
         <fields>
