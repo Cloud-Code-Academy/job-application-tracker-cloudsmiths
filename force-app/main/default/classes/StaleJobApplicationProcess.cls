@@ -2,13 +2,13 @@
  * @description       : Updates stale Job Application records to Closed
  * @author            : Riley Meyer
  * @group             : Cloud Smiths
- * @last modified on  : 08-02-2024
+ * @last modified on  : 08-03-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class StaleJobApplicationProcess implements Schedulable {
     /**
     * You can run these lines of code in Developer Console > Apex Anonymous to schedule this Class to run nightly at 1 AM
-    * StaleJobApplicationProcess i = new StaleJobApplicationProcess ();
+    * StaleJobApplicationProcess i = new StaleJobApplicationProcess();
     * String sch = '0 0 1 * * ?';
     * String jobID = System.schedule('Stale JobApp Process', sch, i);
     * System.debug(jobID);

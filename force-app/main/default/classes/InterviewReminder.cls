@@ -2,13 +2,13 @@
  * @description       : Reminds interviewee about interviews scheduled tomorrow
  * @author            : Riley Meyer
  * @group             : Cloud Smiths
- * @last modified on  : 08-02-2024
+ * @last modified on  : 08-03-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class InterviewReminder implements Schedulable {
     /**
     * You can run these lines of code in Developer Console > Apex Anonymous to schedule this Class to run nightly at 1 AM
-    * InterviewReminder i = new InterviewReminder ();
+    * InterviewReminder i = new InterviewReminder();
     * String sch = '0 0 1 * * ?';
     * String jobID = System.schedule('Interview Reminder', sch, i);
     * System.debug(jobID);
