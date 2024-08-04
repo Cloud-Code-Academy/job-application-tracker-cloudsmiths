@@ -2,7 +2,7 @@
  * @description       : This class calls out to the Jooble API
  * @author            : Riley Meyer
  * @group             : Cloud Smiths
- * @last modified on  : 08-02-2024
+ * @last modified on  : 08-03-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class JoobleCallout {
@@ -152,7 +152,7 @@ public with sharing class JoobleCallout {
                             tempJob.Salary__c = Decimal.valueOf(j.salary.substringBefore(' ').replaceAll(',', '').substring(1));
                             tempJob.Salary_Type__c = 'Weekly';
                         } else if (j.salary.contains('k')){
-                            tempJob.Salary__c = Decimal.valueOf(j.salary.substringBefore('k').substring(1));
+                            tempJob.Salary__c = Decimal.valueOf(j.salary.substringBefore('k').substring(1)) * 1000;
                             tempJob.Salary_Type__c = 'Annual';
                         } else if (j.salary.contains('-')) {
                             tempJob.Salary__c = Decimal.valueOf(j.salary.deleteWhitespace().substringBefore('-').substring(1).replaceAll(',', ''));
