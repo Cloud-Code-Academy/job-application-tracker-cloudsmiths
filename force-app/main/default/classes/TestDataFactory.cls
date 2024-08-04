@@ -2,16 +2,15 @@
  * @description       : 
  * @author            : Riley Meyer
  * @group             : 
- * @last modified on  : 08-01-2024
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
 public class TestDataFactory {
-
     @TestVisible
     private static List<User> createUsers(Integer numRecords) {
         List<User> users = new List<User>();
-        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User'];
+        Profile p = [SELECT Id FROM Profile WHERE Name='Standard User' WITH SYSTEM_MODE];
 
         for (Integer i = 0; i < numRecords; i++) {
             User u = new User();
@@ -27,12 +26,12 @@ public class TestDataFactory {
             u.UserName='testemail' + i + '@cloudsmiths.com';
             users.add(u);
         }
-        System.debug('Number of Users to Insert: ' + users.size());
+
         Database.insert(users, AccessLevel.SYSTEM_MODE);
 
         // Prevents Mixed DML Operation Error
         System.runAs(new User(Id = Userinfo.getUserId())) {
-            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Job_Application_Permission_Set'];
+            PermissionSet ps = [SELECT Id FROM PermissionSet WHERE Name = 'Job_Application_Permission_Set' WITH SYSTEM_MODE];
             List<PermissionSetAssignment> permAssignments = new List<PermissionSetAssignment>();
             for (User u : users) {
                 PermissionSetAssignment psa = new PermissionSetAssignment();
@@ -141,6 +140,7 @@ public class TestDataFactory {
     @TestVisible
     private static List<Event> createInterviews(List<Job_Application__c> jobApps, Integer numRecords) {
         List<Event> interviews = new List<Event>();
+
         for (Integer i = 0; i < numRecords; i++) {
             Event e = new Event();
             e.OwnerId = jobApps[i].OwnerId;
@@ -169,23 +169,15 @@ public class TestDataFactory {
                 e.StartDateTime = DateTime.now().addDays(i);
                 e.EndDateTime = e.StartDateTime.addHours(1);
             }
-
-            // Prevent Interviews on weekends.
-            String eventStartDay = e.StartDateTime.format('EEEE');
-            String eventEndDay = e.EndDateTime.format('EEEE');
-            if(eventStartDay == 'Saturday' || eventEndDay == 'Saturday'){
-                e.StartDateTime = e.StartDateTime.addDays(2);
-                e.EndDateTime = e.EndDateTime.addDays(2);
-            } else if(eventStartDay == 'Sunday' || eventEndDay == 'Sunday'){
-                e.StartDateTime = e.StartDateTime.addDays(1);
-                e.EndDateTime = e.EndDateTime.addDays(1);
-            }
             interviews.add(e);
         }
 
+        // We have to bypass the EventHandler that prevents Interviews on weekends
+        // This ensures that we can always test the InterviewReminder class no matter the day of the week
+        TriggerHandler.bypass('EventHandler');
         Database.insert(interviews, AccessLevel.SYSTEM_MODE);
+        TriggerHandler.clearAllBypasses();
 
         return interviews;
     }
-
 }

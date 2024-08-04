@@ -1,11 +1,12 @@
 /**
- * @description       : 
+ * @description       : InvocableMethod that executes the JoobleCallout
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 07-30-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 public class CreateJoobleCalloutBodyAction {
+    // This method is invoked from the Jooble Search screen flow
     @InvocableMethod(callout=true label='Create Jooble Callout Body' category='Job Application' description='Creates the body that will be used in the callout to Jooble')
     public static void createJoobleCalloutBody(List<FlowInput> inputs){
         for (FlowInput input : inputs) {

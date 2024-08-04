@@ -1,12 +1,12 @@
 /**
- * @description       : 
+ * @description       : Tests for the InterviewReminder Class
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 07-27-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 @IsTest
-private class InterviewReminderTest {
+private class InterviewReminderTest extends TriggerHandler {
     @TestSetup
     static void makeData(){
         Integer numRecords = 400;
@@ -21,7 +21,8 @@ private class InterviewReminderTest {
     static void sendEmailReminerTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
 
         Test.startTest();
         InterviewReminder.sendEmailReminder();
@@ -33,22 +34,44 @@ private class InterviewReminderTest {
 
     @IsTest
     static void getScheduledInterviewsTest(){
+        String myUserId = UserInfo.getUserId();
+        User userOne = [SELECT Id FROM User WHERE Id = :myUserId WITH SYSTEM_MODE LIMIT 1];
+        Account acc = [SELECT Id, Name FROM Account WHERE Name = 'Test Account 1' WITH SYSTEM_MODE LIMIT 1];
+        Contact con = [SELECT Id, LastName FROM Contact WHERE LastName = 'Contact 1' WITH SYSTEM_MODE LIMIT 1];
+
+        Event notJA = new Event();
+        notJA.ownerId = userOne.Id;
+        notJA.Location = 'Not a Job Application';
+        notJA.Subject = 'Interview';
+        notJA.WhoId = con.Id;
+        notJA.WhatId = acc.Id;
+        notJA.Interview_Type__c = 'Screening Interview';
+        notJA.Interview_Format__c = 'Phone';
+        notJA.StartDateTime = System.now().addDays(1);
+        notJA.EndDateTime = notJA.StartDateTime.addHours(1);
+        TriggerHandler.bypass('EventHandler');
+        Database.insert(notJA, AccessLevel.SYSTEM_MODE);
+        TriggerHandler.clearAllBypasses();
+
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
 
         Test.startTest();
         List<Event> interviews = InterviewReminder.getScheduledInterviews();
         Test.stopTest();
 
-        System.assertEquals(scheduledInterviews.size(), interviews.size(), 'Get Scheduled Interviews did not return all interviews');
+        System.assertEquals(scheduledInterviews.size() - 1, interviews.size(), 'Get Scheduled Interviews did not return all interviews');
+        System.assertEquals(false, interviews.contains(notJA), 'Get Scheduled Interviews returned an interview not related to a Job Application');
     }
 
     @IsTest
     static void getJobApplicationRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
         Test.startTest();
         Map<Id, Job_Application__c> jobIdToJobApp = InterviewReminder.getJobApplicationRecords(scheduledInterviews);
         Test.stopTest();
@@ -63,7 +86,9 @@ private class InterviewReminderTest {
     static void getEmailAddressesTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
+
         Set<Id> userIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             userIds.add(interview.OwnerId);
@@ -83,14 +108,18 @@ private class InterviewReminderTest {
     static void getContactRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
+
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
         }
+
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
                                                         FROM Job_Application__c
-                                                        WHERE Id IN :jobAppIds]);
+                                                        WHERE Id IN :jobAppIds
+                                                        WITH SYSTEM_MODE]);
 
         Test.startTest();
         Map<Id, Contact> idToContact = InterviewReminder.getContactRecords(scheduledInterviews, jobIdToJobApp);
@@ -105,14 +134,18 @@ private class InterviewReminderTest {
     static void getAccountRecordsTest(){
         List<Event> scheduledInterviews = [SELECT Id, OwnerId, WhoId, WhatId, Subject, Location, StartDateTime, EndDateTime, Interview_Format__c, Interview_Type__c
                                             FROM Event
-                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW];
+                                            WHERE Subject = 'Interview' AND WhatId != null AND StartDateTime = TOMORROW
+                                            WITH SYSTEM_MODE];
+
         Set<Id> jobAppIds = new Set<Id>();
         for (Event interview : scheduledInterviews) {
             jobAppIds.add(interview.WhatId);
         }
+
         Map<Id, Job_Application__c> jobIdToJobApp = new Map<Id, Job_Application__c>([SELECT Id, Name, Company__c, Position_Title__c, Primary_Contact__c, Location__c, Location_Type__c, Job_Type__c, Salary__c, Salary_Type__c, Job_Posting_URL__c, Rating_Scale__c
                                                         FROM Job_Application__c
-                                                        WHERE Id IN :jobAppIds]);
+                                                        WHERE Id IN :jobAppIds
+                                                        WITH SYSTEM_MODE]);
         Test.startTest();
         Map<Id, Account> idToAccount = InterviewReminder.getAccountRecords(jobIdToJobApp);
         Test.stopTest();
@@ -120,5 +153,19 @@ private class InterviewReminderTest {
         for (Job_Application__c jobApp : jobIdToJobApp.values()) {
             System.assertEquals(true, idToAccount.containsKey(jobApp.Company__c), 'Get Account Records did not find all Accounts');
         }
+    }
+
+    @IsTest
+    static void schedulableTest(){
+        Test.startTest();
+        InterviewReminder reminder = new InterviewReminder();
+        String cron = '0 0 0 15 3 ? 2025';
+        String jobId = System.schedule('Interview Reminder', cron, reminder);
+        Test.stopTest();
+        
+        CronTrigger ct = [SELECT Id, CronExpression, TimesTriggered, NextFireTime FROM CronTrigger WHERE Id = :jobId];
+        System.assertEquals(cron, ct.CronExpression, 'CronExpression does not match');
+        System.assertEquals(0, ct.TimesTriggered, 'TimesTriggered does not match');
+        System.assertEquals('2025-03-15 00:00:00', String.valueOf(ct.NextFireTime), 'NextFireTime does not match');
     }
 }

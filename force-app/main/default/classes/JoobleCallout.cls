@@ -1,12 +1,11 @@
 /**
- * @description       : 
+ * @description       : This class calls out to the Jooble API
  * @author            : Riley Meyer
- * @group             : 
- * @last modified on  : 07-30-2024
+ * @group             : Cloud Smiths
+ * @last modified on  : 08-02-2024
  * @last modified by  : Riley Meyer
 **/
 public with sharing class JoobleCallout {
-
     // Wrapper Class for the ResponseResults
     public class ResponseResult {
         public Integer totalCount;
@@ -26,6 +25,9 @@ public with sharing class JoobleCallout {
         public String updated;
         public String id;
     }
+
+    // Exception class
+    public class JoobleException extends Exception {}
 
     public static void getJobsFromJooble(CreateJoobleCalloutBodyAction.FlowInput body) {
         // Jooble uses pagination when you make calls to their API
@@ -53,36 +55,54 @@ public with sharing class JoobleCallout {
             request.setMethod(callMehtod);
             request.setHeader('Content-Type', callHeader.get('Content-Type'));
             request.setBody(callBody);
-        
-            // Send the HTTP request and get the response
-            Http http = new Http();
-            HTTPResponse response = http.send(request);
 
-            // Store all the job records to be upserted if the response Status Code is successful
-            if (response.getStatusCode() >= 200 || response.getStatusCode() <= 299) {
-                // Deserialize the JSON string to ResponseResult wrapper class
-                ResponseResult jobsResponse = (Responseresult) JSON.deserialize(response.getBody(), ResponseResult.Class);
-                if (jobsResponse.jobs != null){
-                    callResults.add(jobsResponse);
+            // Maximum number of retry attempts
+            Integer numAttempts = 3;
+            while (numAttempts > 0) {
+                try {
+                    // Send the HTTP request and get the response
+                    Http http = new Http();
+                    HTTPResponse response = http.send(request);
+                    if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+                        // Deserialize the JSON string to ResponseResult wrapper class
+                        ResponseResult jobsResponse = (Responseresult) JSON.deserialize(response.getBody(), ResponseResult.Class);
+                        if (jobsResponse.jobs != null){
+                            callResults.add(jobsResponse);
+                        }
+                        // Check if there are more results to retrieve and make another request if necessary
+                        if (jobsResponse.jobs.size() < resultOnPage) {
+                            morePages = false;
+                            break;
+                        } else {
+                            page++;
+                            break;
+                        }
+                    } else {
+                        // Callout was not successful, decrement attempts and retry
+                        numAttempts--;
+                    }
+                } catch (Exception ex) {
+                    if(Test.isRunningTest()){
+                        numAttempts--;
+                        throw new JoobleException('Unauthorized endpoint, please check Setup->Security->Remote site settings.');
+                    } else {
+                        // An exception occurred during the callout, decrement attempts and retry
+                        numAttempts--;
+                        throw new JoobleException('Callout failed: ' + ex.getMessage() + ' - ' + ex.getStackTraceString());
+                    }
                 }
-                // Check if there are more results to retrieve and make another request if necessary
-                if (jobsResponse.jobs.size() < resultOnPage) {
-                    morePages = false;
-                } else {
-                    page++;
-                }
-            } else {
+            }
+
+            // Prevent recalling the Jooble API if the callout fails 3 times
+            if (numAttempts == 0) {
                 morePages = false;
-                System.debug('Error Status Code: ' + response.getStatusCode());
-                System.debug('Error Status : ' + response.getStatus());
-                System.debug('Error Response Body: ' + response.getBody());
             }
         }
 
-        // Create all the Job_Application__c records for upsert
+        // Create all the Job Application records for upsert
         List<Job_Application__c> newJobs = createJobsFromJSON(callResults);
 
-        // Upsert the Job_Application__c records matching on the Jooble_Id__c
+        // Upsert the Job Application records matching on the Jooble_Id__c
         Schema.SObjectField ftoken = Job_Application__c.Fields.Jooble_Id__c;
         Database.upsert(newJobs, ftoken, AccessLevel.SYSTEM_MODE);
     }
@@ -199,7 +219,7 @@ public with sharing class JoobleCallout {
                                             WHERE Name IN :companyNames
                                             WITH SYSTEM_MODE];
 
-        // look through each unique Company Name returned from Jooble to determine if it exists already
+        // Look through each unique Company Name returned from Jooble to determine if it exists already
         for (String companyName : companyNames) {
             Boolean accountExists = false;
             for (Account a : existingAccounts) {
@@ -227,5 +247,4 @@ public with sharing class JoobleCallout {
 
         return companyNameToAccount;
     }
-
 }
