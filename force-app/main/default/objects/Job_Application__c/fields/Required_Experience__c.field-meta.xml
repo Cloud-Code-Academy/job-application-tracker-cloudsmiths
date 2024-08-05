@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Required_Experience__c</fullName>
+    <description>Field used to store experience required for the position.</description>
+    <inlineHelpText>Enter experience required for the job.</inlineHelpText>
+    <label>Required Experience</label>
+    <length>100000</length>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

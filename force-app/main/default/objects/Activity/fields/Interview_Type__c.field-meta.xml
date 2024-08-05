@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Interview_Type__c</fullName>
+    <description>Field used to track type of interview.</description>
+    <inlineHelpText>Select type of interview.</inlineHelpText>
+    <label>Interview Type</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Screening Interview</fullName>
+                <default>false</default>
+                <label>Screening Interview</label>
+            </value>
+            <value>
+                <fullName>Hiring Manager Interview</fullName>
+                <default>false</default>
+                <label>Hiring Manager Interview</label>
+            </value>
+            <value>
+                <fullName>Panel Interview</fullName>
+                <default>false</default>
+                <label>Panel Interview</label>
+            </value>
+            <value>
+                <fullName>Technical Interview</fullName>
+                <default>false</default>
+                <label>Technical Interview</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

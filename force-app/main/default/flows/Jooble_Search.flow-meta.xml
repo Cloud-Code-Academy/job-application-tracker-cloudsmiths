@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Create_Jooble_Callout_Body</name>
+        <label>Create Jooble Callout Body</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <actionName>CreateJoobleCalloutBodyAction</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>Automatic</flowTransactionModel>
+        <inputParameters>
+            <name>dateCreatedFrom</name>
+            <value>
+                <elementReference>stringDateCreatedFrom</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>keywords</name>
+            <value>
+                <elementReference>Keywords</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>location</name>
+            <value>
+                <elementReference>Location</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>salary</name>
+            <value>
+                <elementReference>Salary</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>CreateJoobleCalloutBodyAction</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <apiVersion>61.0</apiVersion>
+    <description>This flow calls an InvocableMethod that then calls the JoobleCallout and retrieves jobs from Jooble.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Convert the date from the screen component to a String to pass to the InvocableMethod.</description>
+        <name>stringDateCreatedFrom</name>
+        <dataType>String</dataType>
+        <expression>TEXT(YEAR({!Date_Created_From})) + &quot;-&quot; + TEXT(MONTH({!Date_Created_From}))+ &quot;-&quot; + TEXT(DAY({!Date_Created_From}))</expression>
+    </formulas>
+    <interviewLabel>Jooble Search {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Jooble Search</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <screens>
+        <name>Jooble_Job_Search</name>
+        <label>Jooble Job Search</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Create_Jooble_Callout_Body</targetReference>
+        </connector>
+        <fields>
+            <name>Keywords</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <stringValue>Salesforce Developer</stringValue>
+            </defaultValue>
+            <fieldText>Keywords</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Search for keywords in the job title or description.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>Location</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <stringValue>Omaha, NE</stringValue>
+            </defaultValue>
+            <fieldText>Location</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Location to search for jobs.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <fields>
+            <name>Salary</name>
+            <dataType>String</dataType>
+            <defaultValue>
+                <stringValue>100000</stringValue>
+            </defaultValue>
+            <fieldText>Salary</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Minimum salary for the job search.&lt;/p&gt;&lt;p&gt;Whole numbers only without commas, dollar signs, or decimals.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <validationRule>
+                <errorMessage>&lt;pre class=&quot;ql-syntax&quot; spellcheck=&quot;false&quot;&gt;You can only enter numbers no letters, commas, decimals, dollar signs or special characters.
+&lt;/pre&gt;</errorMessage>
+                <formulaExpression>AND (
+ISNUMBER({!Salary}),
+NOT(CONTAINS({!Salary}, &apos;.&apos;))
+)</formulaExpression>
+            </validationRule>
+        </fields>
+        <fields>
+            <name>Date_Created_From</name>
+            <dataType>Date</dataType>
+            <defaultValue>
+                <dateValue>2024-07-01</dateValue>
+            </defaultValue>
+            <fieldText>Date Created From</fieldText>
+            <fieldType>InputField</fieldType>
+            <helpText>&lt;p&gt;Get jobs created after this date.&lt;/p&gt;</helpText>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+        </fields>
+        <nextOrFinishButtonLabel>Search</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Jooble_Job_Search</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+</Flow>
